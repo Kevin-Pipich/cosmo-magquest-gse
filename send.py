@@ -1,7 +1,7 @@
 """
 This module houses all commands to be sent from the GSE to the PIC as well as packetization functions
 """
-
+# IMPORTED MODULES
 from byte import *
 
 # ------------------------------------------PACKETIZATION AND CRC----------------------------------------------------- #

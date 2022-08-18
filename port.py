@@ -2,10 +2,12 @@
 This module finds all the ports that are available on the specified device and connects to the correct one. If the
 user requests a new port, these functions will also handel switching the com ports
 """
-
+# IMPORTED MODULES
+from variables import serial_port
+# Serial modules
 import serial.tools.list_ports
 import serial
-
+# GUI modules
 import customtkinter as ctk
 from tkinter import DISABLED, NORMAL, StringVar
 
@@ -107,18 +109,20 @@ def new_port(Commands):
             submit.state = NORMAL
 
     def new_port_settings():
-        serial_port = serial.Serial(text_var.get()[-4:], baudrate=int(baud.get()), timeout=1)
+        serial_port.clear()
+        serial_port.append(serial.Serial(text_var.get()[-4:], baudrate=int(baud.get()), timeout=1))
         print("Now Connected to " + text_var.get()[-4:])
         submit.state = DISABLED
-        Commands.connection_label.configure(text=serial_name(serial_port))
+        properties = get_serial_properties(serial_port[0])
+        Commands.connection_label.configure(text=serial_name(serial_port[0]))
 
-        Commands.baud_rate_label.configure(text="Rate: " + get_serial_properties(serial_port)[0])
+        Commands.baud_rate_label.configure(text="Rate: " + properties[0])
 
-        Commands.byte_size_label.configure(text="Byte Size: " + get_serial_properties(serial_port)[1])
+        Commands.byte_size_label.configure(text="Byte Size: " + properties[1])
 
-        Commands.parity_label.configure(text="Parity: " + get_serial_properties(serial_port)[2])
+        Commands.parity_label.configure(text="Parity: " + properties[2])
 
-        Commands.stop_bits_label.configure(text="Stop Bits: " + get_serial_properties(serial_port)[3])
+        Commands.stop_bits_label.configure(text="Stop Bits: " + properties[3])
 
     com_window = ctk.CTkToplevel()
     com_window.geometry("550x365")
@@ -185,20 +189,20 @@ def new_port(Commands):
 
 
 """ returns the serial port properties """
-def get_serial_properties(serial_port):
-    if serial_port is None:
+def get_serial_properties(ser):
+    if ser is None:
         return ["Not Connected", "Not Connected", "Not Connected", "Not Connected"]
     else:
-        baud_rate = str(serial_port.baudrate) + " bits per second"
-        byte_size = str(serial_port.bytesize) + " bits"
-        parity_bit = str(serial_port.parity)
-        stop_bit = str(serial_port.stopbits) + " bit(s)"
+        baud_rate = str(ser.baudrate) + " bits per second"
+        byte_size = str(ser.bytesize) + " bits"
+        parity_bit = str(ser.parity)
+        stop_bit = str(ser.stopbits) + " bit(s)"
         return [baud_rate, byte_size, parity_bit, stop_bit]
 
 
 """ returns the serial port name """
-def serial_name(serial_port):
-    if serial_port is None:
+def serial_name(ser):
+    if ser is None:
         return "Not Connected to a Port!"
     else:
-        return "Connected to " + serial_port.name
+        return "Connected to " + ser.name

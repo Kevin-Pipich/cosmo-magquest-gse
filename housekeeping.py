@@ -1,6 +1,16 @@
-import customtkinter as ctk
+"""
+This module houses all the functions that deal with housekeeping packets and plots. All housekeeping data will be
+processed in this module.
+"""
+# IMPORTED MODULES
 from variables import *
+# GUI modules
+import customtkinter as ctk
 from tkinter import NORMAL, DISABLED, TOP, BOTH
+# File modules
+from tkinter import filedialog
+import os
+import csv
 
 """ [CURRENTLY DISABLED] Checks to ensure that voltages and currents are at safe levels, sends warning if not """
 def safety_check(Voltage_List, Current_List, Temperature_List):
@@ -352,25 +362,28 @@ def rescale_plots(List, idx, limits):
 
 """ creates a new window displaying the live housekeeping data """
 def new_housekeeping_display(Housekeeping):
-    housekeeping_display.pop(True)
+    housekeeping_display.clear()
+    housekeeping_display.append(True)
 
     def close_display():
-        housekeeping_display.pop(False)
+        housekeeping_display.clear()
+        housekeeping_display.append(False)
         hk_display_window.destroy()
         Housekeeping.display_button.state = NORMAL
 
-    hk_display_window = ctk.CTkToplevel()
-    hk_display_window.geometry("365x750")
-    hk_display_window.title("Live Housekeeping Data")
-    hk_display_window.resizable(False, False)
-    hk_display_window.protocol("WM_DELETE_WINDOW", close_display)
+    hk_display_window.clear()
+    hk_display_window.append(ctk.CTkToplevel())
+    hk_display_window[0].geometry("365x750")
+    hk_display_window[0].title("Live Housekeeping Data")
+    hk_display_window[0].resizable(False, False)
+    hk_display_window[0].protocol("WM_DELETE_WINDOW", close_display)
     Housekeeping.display_button.state = DISABLED
-    update_housekeeping_display(hk_display_window)
+    update_housekeeping_display()
 
 
 """ updates the values in the live housekeeping data display """
-def update_housekeeping_display(hk_display_window):
-    label = ctk.CTkLabel(hk_display_window, text="Data Point " + str(int(HK_data_points[-1])) + "\n\n"
+def update_housekeeping_display():
+    label = ctk.CTkLabel(housekeeping_display, text="Data Point " + str(int(HK_data_points[-1])) + "\n\n"
                                                  + "============ Rail Voltage/ Currents ============" + "\n\n"
                                                  + "+5V Rail Analog Board Voltage: " + str(
         AB_voltage[-1]) + " V" + "\n"
@@ -428,6 +441,67 @@ def update_housekeeping_display(hk_display_window):
     label.grid(row=0, column=0)
 
 
+""" saves the last n data points to a .csv file """
+def save_data():
+    # create Fields
+    fields = ['Data Points', 'Current at +5V rail (for Analog Board)', 'Voltage at +5V rail (for Analog Board)',
+              'Current at 12V rail (for Digital Board)', 'Voltage at 12V rail (for Digital Board)',
+              'Current at 3V3 rail (for HK sensors)', 'Voltage at 3V3 rail (for HK sensors)',
+              'Current at 5VST rail (for Star Trackers)', 'Voltage at 5VST rail (for Star Trackers)',
+              'Current at 12VS rail (for Scalar Boards)', 'Voltage at 12VS rail (for Scalar Boards)',
+              'Current at Scalar Board No.1 - Ch.1', 'Voltage at Scalar Board No.1 - Ch.1',
+              'Current at Scalar Board No.1 - Ch.2', 'Voltage at Scalar Board No.1 - Ch.2',
+              'Current at Scalar Board No.1 - Ch.3', 'Voltage at Scalar Board No.1 - Ch.3',
+              'Current at Scalar Board No.2 - Ch.1', 'Voltage at Scalar Board No.2 - Ch.1',
+              'Current at Scalar Board No.2 - Ch.2', 'Voltage at Scalar Board No.2 - Ch.2',
+              'Current at Scalar Board No.2 - Ch.3', 'Voltage at Scalar Board No.2 - Ch.3',
+              'Temperature at ±5V Regulator', 'Temperature at 3V3 Regulator', 'Temperature at Scalar Board No.1',
+              'Temperature at Scalar Board No.2']
+
+    filename = "VRuM_HK_Data.csv"
+
+    file_number = 0
+    while True:
+        file_number += 1
+        try:  # Create a file with unique name, if the file already exists add (xx) to end of file name
+            open(filename, 'x')
+            print("Created ", filename, "...")
+            break
+        except FileExistsError:
+            filename = "VRuM_HK_Data(" + str(file_number) + ").csv"
+
+    directory = filedialog.askdirectory()  # Ask for save location
+
+    save_path = os.path.join(directory, filename)  # Create save path
+
+    with open(save_path, 'w') as csvfile:
+        # create a csv writer object
+        csvwriter = csv.writer(csvfile)
+
+        # write the fields
+        csvwriter.writerow(fields)
+
+        # determine the length of the csv file
+        if HK_data_points[-1] > 100:
+            data_points = 100
+        else:
+            data_points = HK_data_points[-1]
+
+        # write each row for the length of each deque
+        for i in range(0, data_points):
+            row = [HK_data_points[i], AB_current[i], AB_voltage[i], DB_current[i], DB_voltage[i],
+                   HK_current[i], HK_voltage[i], ST_current[i], ST_voltage[i], SB_current[i], SB_voltage[i],
+                   SBN1C1_current[i], SBN1C1_voltage[i], SBN1C2_current[i], SBN1C2_voltage[i],
+                   SBN1C3_current[i], SBN1C3_voltage[i], SBN2C1_current[i], SBN2C1_voltage[i],
+                   SBN2C2_current[i], SBN2C2_voltage[i], SBN2C3_current[i], SBN2C3_voltage[i],
+                   REG5V_temp[i], REG3V3_temp[i], SB1_temp[i], SB2_temp[i]]
+            csvwriter.writerow(row)
+
+    location = directory.split('/')[-1]
+    print(filename, " saved to " + location)
+
+
+""" updates the error list """
 def update_error():
     # Create the Error List
     Error_List = []
@@ -513,23 +587,23 @@ def update_error():
     process_error(Error_List)
 
 
+""" changes colors of label to show if an error is present """
 def process_error(Error_List):
     if Error_List[0] == "OK":
         color = "green"
     else:
         color = "darkred"
-    self.frames[Housekeeping].error_grid[0].configure(text="CDH Comm Task State: " + Error_List[0],
+    error_grid[0].configure(text="CDH Comm Task State: " + Error_List[0],
                                                       fg_color=color)
     for i in range(1, len(Error_List)):
         if Error_List[i][0] is True:
             color = "green"
-            text = "✓"
         else:
             color = "darkred"
-            text = "❌"
-        self.frames[Housekeeping].error_grid[i - 1].configure(text=text, fg_color=color)
+        error_grid[i - 1].configure(text=Error_List[i][1], fg_color=color)
 
 
+""" enables the user to display the error """
 def see_error(num):
     try:
         # if Error_List[num + 1][0] is True:
@@ -543,16 +617,16 @@ def see_error(num):
 
         def close_display():
             error_window.destroy()
-            for i in range(0, len(self.frames[Housekeeping].error_grid)):
-                self.frames[Housekeeping].error_grid[i].state = NORMAL
+            for i in range(0, len(error_grid)):
+                error_grid[i].state = NORMAL
 
         error_window = ctk.CTkToplevel()
         error_window.geometry("350x150")
         error_window.title("Error Message")
         error_window.resizable(False, False)
         error_window.protocol("WM_DELETE_WINDOW", close_display)
-        for i in range(0, len(self.frames[Housekeeping].error_grid)):
-            self.frames[Housekeeping].error_grid[i].state = DISABLED
+        for i in range(0, len(error_grid)):
+            error_grid[i].state = DISABLED
 
         error_label = ctk.CTkLabel(master=error_window,
                                    text=error_type + error)
