@@ -368,7 +368,7 @@ def new_housekeeping_display(Housekeeping):
     def close_display():
         housekeeping_display.clear()
         housekeeping_display.append(False)
-        hk_display_window.destroy()
+        hk_display_window[0].destroy()
         Housekeeping.display_button.state = NORMAL
 
     hk_display_window.clear()
@@ -383,7 +383,7 @@ def new_housekeeping_display(Housekeeping):
 
 """ updates the values in the live housekeeping data display """
 def update_housekeeping_display():
-    label = ctk.CTkLabel(housekeeping_display, text="Data Point " + str(int(HK_data_points[-1])) + "\n\n"
+    label = ctk.CTkLabel(hk_display_window[0], text="Data Point " + str(int(HK_data_points[-1])) + "\n\n"
                                                  + "============ Rail Voltage/ Currents ============" + "\n\n"
                                                  + "+5V Rail Analog Board Voltage: " + str(
         AB_voltage[-1]) + " V" + "\n"

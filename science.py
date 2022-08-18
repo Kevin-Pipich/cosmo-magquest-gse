@@ -251,21 +251,21 @@ def new_science_display(Science):
     def close_display():
         science_display.clear()
         science_display.append(False)
-        sci_display_window.destroy()
+        sci_display_window[0].destroy()
         Science.display_button.state = NORMAL
 
     sci_display_window.clear()
     sci_display_window.append(ctk.CTkToplevel())
-    sci_display_window.geometry("538x750")
-    sci_display_window.title("Live Science Data")
-    sci_display_window.resizable(False, False)
-    sci_display_window.protocol("WM_DELETE_WINDOW", close_display)
+    sci_display_window[0].geometry("538x750")
+    sci_display_window[0].title("Live Science Data")
+    sci_display_window[0].resizable(False, False)
+    sci_display_window[0].protocol("WM_DELETE_WINDOW", close_display)
     Science.display_button.state = DISABLED
 
     if Scalar_Magnetometer_Data[-1] != 0:
         update_science_display()
     else:
-        label = ctk.CTkLabel(master=sci_display_window,
+        label = ctk.CTkLabel(master=sci_display_window[0],
                              text="No Data to Display!")
         label.pack(side=TOP, expand=True)
 
@@ -284,7 +284,7 @@ def update_science_display():
         case _:
             current_state = "Off"
 
-    label1 = ctk.CTkLabel(master=sci_display_window,
+    label1 = ctk.CTkLabel(master=sci_display_window[0],
                           text="=============== Time ===============\n\n"
                                + str(Science_Time[-1]) + "\n\n" +
                                "=============== Magnetometer Data ===============" +
