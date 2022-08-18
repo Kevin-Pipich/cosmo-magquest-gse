@@ -1,36 +1,25 @@
-from tkinter import DISABLED, NORMAL
 from tkinter.ttk import Notebook, Style
 import tkinter.messagebox
-from tkinter import filedialog
-import customtkinter as ctk
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from PIL import ImageTk, Image
 
-import numpy as np
-from scipy import signal
-from statistics import mean
-from random import choice, choices
-import collections
-
-import serial
+import customtkinter as ctk
 
 import threading
 
-import datetime
-import time
-
 import sys
-import csv
-import os
 
 """ NEW IMPORTS """
-import customtkinter as ctk
-
-import communications
-import port
 from variables import *
+from byte import *
+import port
+import housekeeping
+import commands
+import science
+import communications
+import hidden
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -47,15 +36,10 @@ class App(ctk.CTk):
     HEIGHT = 1080
 
     power = True  # must be true in order to send/receive commands
-    hk_display = False
-    sci_display = False
-
-    data_points_saved = 0
-    csvwriter = None
 
     exit = threading.Event()
 
-    serial_port = port.Connect_to_Port()
+    serial_port.append(port.Connect_to_Port())
 
     def __init__(self, *args, **kwargs):
         # __init__ function for class CTk
@@ -102,8 +86,8 @@ class App(ctk.CTk):
         """
         self.power = False
         self.exit.set()
-        if self.data_points_saved != 0:
-            self.save_file()
+        if int(points_saved[0].text) != 0:
+            science.save_file()
         sys.exit()
 
 
@@ -172,13 +156,13 @@ class Housekeeping(ctk.CTkFrame):
         self.button_3 = ctk.CTkButton(master=self.frame_left,
                                       text="Save Data to .csv",
                                       fg_color=("gray75", "gray30"),
-                                      command=self.save_data)
+                                      command=housekeeping.save_data)
         self.button_3.grid(row=6, column=0, pady=10, padx=20)
 
         self.display_button = ctk.CTkButton(master=self.frame_left,
                                             text="Display HK Data",
                                             fg_color=("gray75", "gray30"),
-                                            command=lambda: controller.new_housekeeping_display())
+                                            command=lambda H=self: housekeeping.new_housekeeping_display(H))
         self.display_button.grid(row=7, column=0, pady=10, padx=20)
 
         self.close_button = ctk.CTkButton(master=self.frame_left,
@@ -392,7 +376,6 @@ class Housekeeping(ctk.CTkFrame):
                                            height=40)
         self.CDH_Comm_State.grid(row=9, column=1, columnspan=2, sticky="ew", padx=5, pady=5)
 
-        self.error_grid = []
         counter = 0
         for i in range(0, 9):
             for j in range(0, 4):
@@ -400,9 +383,9 @@ class Housekeeping(ctk.CTkFrame):
                                        fg_color="orange",
                                        hover_color="black",
                                        text="Start Up",
-                                       command=lambda counter=counter: controller.see_error(counter))
+                                       command=lambda idx=counter: housekeeping.see_error(idx))
                 button.grid(row=i, column=j, sticky="nsew", padx=5, pady=5)
-                self.error_grid.append(button)
+                error_grid.append(button)
                 counter += 1
 
         # ============ Save all Figures/Axes =============
@@ -451,7 +434,7 @@ class Housekeeping(ctk.CTkFrame):
                 axes_twins_background.append(fig[i + 4].canvas.copy_from_bbox(axes_twins[i].bbox))
 
         """ Create artists for updating figure when new data is received """
-        artist_1.extend(axes[0].plot([], [], color='white')[0],
+        artist_1.extend([axes[0].plot([], [], color='white')[0],
                         axes[1].plot([], [], color='white')[0],
                         axes[2].plot([], [], color='white')[0],
                         axes[3].plot([], [], color='white')[0],
@@ -468,9 +451,9 @@ class Housekeeping(ctk.CTkFrame):
                         axes[14].plot([], [], color='red')[0],
                         axes[15].plot([], [], color='red')[0],
                         axes[16].plot([], [], color='red')[0],
-                        axes[17].plot([], [], color='red')[0])
+                        axes[17].plot([], [], color='red')[0]])
 
-        artist_2.extend(axes_twins[0].plot([], [], color='blue')[0],
+        artist_2.extend([axes_twins[0].plot([], [], color='blue')[0],
                         axes_twins[1].plot([], [], color='blue')[0],
                         axes_twins[2].plot([], [], color='blue')[0],
                         axes_twins[3].plot([], [], color='blue')[0],
@@ -483,7 +466,7 @@ class Housekeeping(ctk.CTkFrame):
                         axes_twins[10].plot([], [], color='blue')[0],
                         axes_twins[11].plot([], [], color='blue')[0],
                         axes_twins[12].plot([], [], color='blue')[0],
-                        axes_twins[13].plot([], [], color='blue')[0])
+                        axes_twins[13].plot([], [], color='blue')[0]])
 
 
 class Commands(ctk.CTkFrame):
@@ -599,16 +582,14 @@ class Commands(ctk.CTkFrame):
                                             text="on",
                                             variable=self.analog_on_off,
                                             value=1,
-                                            command=lambda: controller.send_data(ByteDefine.CDH_ANALOG_CTRL,
-                                                                                 ByteDefine.ON))
+                                            command=lambda: communications.send_data(CDH_ANALOG_CTRL, ON))
         self.analog_on.grid(row=2, column=1, sticky="nswe", padx=5, pady=5)
 
         self.analog_off = ctk.CTkRadioButton(master=self.Board_CTRL,
                                              text="off",
                                              variable=self.analog_on_off,
                                              value=0,
-                                             command=lambda: controller.send_data(ByteDefine.CDH_ANALOG_CTRL,
-                                                                                  ByteDefine.OFF))
+                                             command=lambda: communications.send_data(CDH_ANALOG_CTRL, OFF))
         self.analog_off.grid(row=3, column=1, sticky="nswe", padx=5, pady=5)
 
         # Scalar Board 1 Control
@@ -631,16 +612,14 @@ class Commands(ctk.CTkFrame):
                                          text="on",
                                          variable=self.sb1_on_off,
                                          value=1,
-                                         command=lambda: controller.send_data(ByteDefine.CDH_SCALAR1_CTRL,
-                                                                              ByteDefine.ON))
+                                         command=lambda: communications.send_data(CDH_SCALAR1_CTRL, ON))
         self.sb1_on.grid(row=5, column=1, sticky="nswe", padx=5, pady=5)
 
         self.sb1_off = ctk.CTkRadioButton(master=self.Board_CTRL,
                                           text="off",
                                           variable=self.sb1_on_off,
                                           value=0,
-                                          command=lambda: controller.send_data(ByteDefine.CDH_SCALAR1_CTRL,
-                                                                               ByteDefine.OFF))
+                                          command=lambda: communications.send_data(CDH_SCALAR1_CTRL, OFF))
         self.sb1_off.grid(row=6, column=1, sticky="nswe", padx=5, pady=5)
 
         # Scalar Board 2 Control
@@ -663,16 +642,14 @@ class Commands(ctk.CTkFrame):
                                          text="on",
                                          variable=self.sb2_on_off,
                                          value=1,
-                                         command=lambda: controller.send_data(ByteDefine.CDH_SCALAR2_CTRL,
-                                                                              ByteDefine.ON))
+                                         command=lambda: communications.send_data(CDH_SCALAR2_CTRL, ON))
         self.sb2_on.grid(row=8, column=1, sticky="nswe", padx=5, pady=5)
 
         self.sb2_off = ctk.CTkRadioButton(master=self.Board_CTRL,
                                           text="off",
                                           variable=self.sb2_on_off,
                                           value=0,
-                                          command=lambda: controller.send_data(ByteDefine.CDH_SCALAR2_CTRL,
-                                                                               ByteDefine.OFF))
+                                          command=lambda: communications.send_data(CDH_SCALAR2_CTRL, OFF))
         self.sb2_off.grid(row=9, column=1, sticky="nswe", padx=5, pady=5)
 
         # Star Tracker 1 Control
@@ -695,16 +672,14 @@ class Commands(ctk.CTkFrame):
                                          text="on",
                                          variable=self.st1_on_off,
                                          value=1,
-                                         command=lambda: controller.send_data(ByteDefine.CDH_STAR_TRACK1_CTRL,
-                                                                              ByteDefine.ON))
+                                         command=lambda: communications.send_data(CDH_STAR_TRACK1_CTRL, ON))
         self.st1_on.grid(row=11, column=1, sticky="nswe", padx=5, pady=5)
 
         self.st1_off = ctk.CTkRadioButton(master=self.Board_CTRL,
                                           text="off",
                                           variable=self.st1_on_off,
                                           value=0,
-                                          command=lambda: controller.send_data(ByteDefine.CDH_STAR_TRACK1_CTRL,
-                                                                               ByteDefine.OFF))
+                                          command=lambda: communications.send_data(CDH_STAR_TRACK1_CTRL, OFF))
         self.st1_off.grid(row=12, column=1, sticky="nswe", padx=5, pady=5)
 
         # Star Tracker 2 Control
@@ -727,17 +702,19 @@ class Commands(ctk.CTkFrame):
                                          text="on",
                                          variable=self.st2_on_off,
                                          value=1,
-                                         command=lambda: controller.send_data(ByteDefine.CDH_STAR_TRACK2_CTRL,
-                                                                              ByteDefine.ON))
+                                         command=lambda: communications.send_data(CDH_STAR_TRACK2_CTRL, ON))
         self.st2_on.grid(row=14, column=1, sticky="nswe", padx=5, pady=5)
 
         self.st2_off = ctk.CTkRadioButton(master=self.Board_CTRL,
                                           text="off",
                                           variable=self.st2_on_off,
                                           value=0,
-                                          command=lambda: controller.send_data(ByteDefine.CDH_STAR_TRACK2_CTRL,
-                                                                               ByteDefine.OFF))
+                                          command=lambda: communications.send_data(CDH_STAR_TRACK2_CTRL, OFF))
         self.st2_off.grid(row=15, column=1, sticky="nswe", padx=5, pady=5)
+
+        # ============ SAVE BOARD LEDs TO VARIABLE ============
+
+        board_led.extend([self.analog_led, self.sb1_led, self.sb2_led, self.st1_led, self.st2_led])
 
         # ============ CONFIGURATION CONTROL ============
 
@@ -783,7 +760,7 @@ class Commands(ctk.CTkFrame):
                                               from_=0,
                                               to=127,
                                               number_of_steps=127,
-                                              command=self.change_amp_1)
+                                              command=commands.change_amp_1)
         self.coil_1_amplitude.grid(row=3, column=1, sticky="ew", padx=5, pady=5)
 
         # Coil 2
@@ -817,7 +794,7 @@ class Commands(ctk.CTkFrame):
                                               from_=0,
                                               to=127,
                                               number_of_steps=127,
-                                              command=self.change_amp_2)
+                                              command=commands.change_amp_2)
         self.coil_2_amplitude.grid(row=6, column=1, sticky="ew", padx=5, pady=5)
 
         # Coil 3
@@ -851,7 +828,7 @@ class Commands(ctk.CTkFrame):
                                               from_=0,
                                               to=127,
                                               number_of_steps=127,
-                                              command=self.change_amp_3)
+                                              command=commands.change_amp_3)
         self.coil_3_amplitude.grid(row=9, column=1, sticky="ew", padx=5, pady=5)
 
         # Scalar Sample Rate
@@ -879,7 +856,7 @@ class Commands(ctk.CTkFrame):
         # Submit Button
         self.config_submit = ctk.CTkButton(master=self.Config_CTRL,
                                            text="Submit Configuration",
-                                           command=lambda: self.new_config())
+                                           command=lambda: commands.new_config())
         self.config_submit.grid(row=10, column=0, columnspan=6, sticky="ew", pady=10, padx=125)
 
         # Default Settings
@@ -998,10 +975,10 @@ class Commands(ctk.CTkFrame):
                                                              corner_radius=8)
         self.current_scalar_sample_rate_label.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 
-        self.current_scalar_sample_rate = ctk.CTkLabel(master=self.Current_Config_frame_2,
+        current_scalar_sample_rate.append(ctk.CTkLabel(master=self.Current_Config_frame_2,
                                                        text="100 Hz",
-                                                       text_font=("Kanit", 20, "bold"))
-        self.current_scalar_sample_rate.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+                                                       text_font=("Kanit", 20, "bold")))
+        current_scalar_sample_rate[0].grid(row=1, column=0, sticky="ew", padx=5, pady=5)
 
         self.current_scalar_baud_rate_label = ctk.CTkLabel(master=self.Current_Config_frame_2,
                                                            text="Scalar Baud Rate",
@@ -1010,10 +987,10 @@ class Commands(ctk.CTkFrame):
                                                            corner_radius=8)
         self.current_scalar_baud_rate_label.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
 
-        self.current_scalar_baud_rate = ctk.CTkLabel(master=self.Current_Config_frame_2,
+        current_scalar_baud_rate.append(ctk.CTkLabel(master=self.Current_Config_frame_2,
                                                      text="115200",
-                                                     text_font=("Kanit", 20, "bold"))
-        self.current_scalar_baud_rate.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
+                                                     text_font=("Kanit", 20, "bold")))
+        current_scalar_baud_rate[0].grid(row=3, column=0, sticky="ew", padx=5, pady=5)
 
         # ============ SERIAL PORT CONFIGURATION ============
 
@@ -1026,20 +1003,22 @@ class Commands(ctk.CTkFrame):
                                          corner_radius=8)
         self.serial_label.grid(row=0, column=0, sticky="new", padx=10, pady=10)
 
+        properties = port.get_serial_properties(serial_port[0])
+
         self.baud_rate_label = ctk.CTkLabel(master=self.Serial_Config,
-                                            text="Rate: " + controller.get_serial_properties()[0])
+                                            text="Rate: " + properties[0])
         self.baud_rate_label.grid(row=1, column=0, sticky="new")
 
         self.byte_size_label = ctk.CTkLabel(master=self.Serial_Config,
-                                            text="Byte Size: " + controller.get_serial_properties()[1])
+                                            text="Byte Size: " + properties[1])
         self.byte_size_label.grid(row=2, column=0, sticky="new")
 
         self.parity_label = ctk.CTkLabel(master=self.Serial_Config,
-                                         text="Parity: " + controller.get_serial_properties()[2])
+                                         text="Parity: " + properties[2])
         self.parity_label.grid(row=3, column=0, sticky="new")
 
         self.stop_bits_label = ctk.CTkLabel(master=self.Serial_Config,
-                                            text="Stop Bits: " + controller.get_serial_properties()[3])
+                                            text="Stop Bits: " + properties[3])
         self.stop_bits_label.grid(row=4, column=0, sticky="new")
 
         self.packet_request = ctk.CTkLabel(master=self.Serial_Config,
@@ -1048,14 +1027,14 @@ class Commands(ctk.CTkFrame):
                                            corner_radius=8)
         self.packet_request.grid(row=5, column=0, sticky="new", padx=10, pady=10)
 
-        self.stream_sci_check = ctk.CTkCheckBox(master=self.Serial_Config,
-                                                text="Stream Science",
-                                                command=self.stream_science)
-        self.stream_sci_check.grid(row=6, column=0, sticky="new", padx=25, pady=10)
+        stream_science_checkbox.append(ctk.CTkCheckBox(master=self.Serial_Config,
+                                                       text="Stream Science",
+                                                       command=commands.stream_science))
+        stream_science_checkbox[0].grid(row=6, column=0, sticky="new", padx=25, pady=10)
 
         self.sci_request = ctk.CTkButton(master=self.Serial_Config,
                                          text="Science Packet",
-                                         command=self.request_science)
+                                         command=commands.request_science)
         self.sci_request.grid(row=7, column=0, sticky="new", padx=25, pady=10)
 
         self.presets = ctk.CTkLabel(master=self.Serial_Config,
@@ -1066,12 +1045,12 @@ class Commands(ctk.CTkFrame):
 
         self.default_config = ctk.CTkButton(master=self.Serial_Config,
                                             text="Default Configuration",
-                                            command=self.restore_default)
+                                            command=commands.restore_default)
         self.default_config.grid(row=9, column=0, sticky="new", padx=25, pady=10)
 
         self.play_game = ctk.CTkButton(master=self.Serial_Config,
                                        text="Begin",
-                                       command=self.easter_egg)
+                                       command=lambda C=self: hidden.easter_egg(C))
         self.play_game.grid(row=10, column=0, sticky="new", padx=25, pady=10)
 
         # ============ SERIAL PORT SETTINGS ============
@@ -1080,15 +1059,26 @@ class Commands(ctk.CTkFrame):
         self.Serial_Settings.columnconfigure(0, weight=1)
 
         self.connection_label = ctk.CTkLabel(master=self.Serial_Settings,
-                                             text=controller.serial_name(),
+                                             text=port.serial_name(serial_port[0]),
                                              fg_color=("white", "gray38"),
                                              corner_radius=8)
         self.connection_label.grid(row=0, column=0, pady=5, padx=20)
 
         self.change_com = ctk.CTkButton(master=self.Serial_Settings,
                                         text="Change Port",
-                                        command=lambda: communications.new_port)
+                                        command=lambda C=self: port.new_port(C))
         self.change_com.grid(row=1, column=0, padx=20, pady=5)
+
+        # =========== APPEND OBJECTS TO VARIABLES ============
+        current_frequencies.extend([self.current_freq_1, self.current_freq_2, self.current_freq_3])
+        current_amplitudes.extend([self.current_amp_1, self.current_amp_2, self.current_amp_3])
+        amplitude_bars.extend([self.amp_1_bar, self.amp_2_bar, self.amp_3_bar])
+
+        frequencies.extend([self.freq_1, self.freq_2, self.freq_3])
+        amplitudes.extend([self.amp_1, self.amp_2, self.amp_3])
+        user_amplitudes.extend([self.coil_1_amplitude, self.coil_2_amplitude, self.coil_3_amplitude])
+        amplitude_labels.extend([self.amp_1_label, self.amp_2_label, self.amp_3_label])
+        scalar_values.extend([self.scalar_baud, self.scalar_sample])
 
 
 class Science(ctk.CTkFrame):
@@ -1184,9 +1174,9 @@ class Science(ctk.CTkFrame):
                                           corner_radius=8)
         self.options_label.grid(row=0, column=0, sticky="ew", pady=5, padx=20)
 
-        self.write_checkbox = ctk.CTkCheckBox(master=self.frame_options,
-                                              text="Write to File")
-        self.write_checkbox.grid(row=1, column=0, sticky="s")
+        write_checkbox.append(ctk.CTkCheckBox(master=self.frame_options,
+                                              text="Write to File"))
+        write_checkbox[0].grid(row=1, column=0, sticky="s")
 
         self.number_saved = ctk.CTkLabel(master=self.frame_options,
                                          text="Data Points Saved",
@@ -1194,16 +1184,16 @@ class Science(ctk.CTkFrame):
                                          height=50)
         self.number_saved.grid(row=2, column=0, sticky="nsew", pady=5, padx=5)
 
-        self.points_saved = ctk.CTkLabel(master=self.frame_options,
+        points_saved.append(ctk.CTkLabel(master=self.frame_options,
                                          text="0",
                                          text_font=("Kanit", -20, "bold"),
                                          fg_color=("white", "gray38"),
-                                         corner_radius=8)
-        self.points_saved.grid(row=3, column=0, sticky="ns")
+                                         corner_radius=8))
+        points_saved[0].grid(row=3, column=0, sticky="ns")
 
         self.save_file = ctk.CTkButton(master=self.frame_options,
                                        text="Save File",
-                                       command=lambda: controller.save_file())
+                                       command=lambda: science.save_file)
         self.save_file.grid(row=4, column=0, padx=5, pady=5)
 
         self.options_label = ctk.CTkLabel(master=self.frame_options,
@@ -1216,7 +1206,7 @@ class Science(ctk.CTkFrame):
 
         self.display_button = ctk.CTkButton(master=self.frame_options,
                                             text="Display Science Data",
-                                            command=lambda: controller.new_science_display())
+                                            command=lambda S=self: science.new_science_display(S))
         self.display_button.grid(row=6, column=0, pady=5, padx=5)
 
         # ============ frame_sci_plot ============
@@ -1254,9 +1244,11 @@ class Science(ctk.CTkFrame):
                                               corner_radius=8)
         self.state_frame_label.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=5)
 
-        self.blink_led = ctk.CTkLabel(master=self.frame_state)
-
         black_img = ImageTk.PhotoImage(Image.open("black_button.png").resize((100, 100)))
+
+        led_image.append(ctk.CTkLabel(master=self.frame_state, image=black_img))
+        led_image[0].grid(row=1, column=0, sticky="nsew")
+
         self.state_led = ctk.CTkLabel(master=self.frame_state, image=black_img)
         self.state_led.image = black_img
         self.state_led.grid(row=1, column=0, sticky="nsew")
@@ -1288,8 +1280,8 @@ class Science(ctk.CTkFrame):
             sci_fig[i].tight_layout()
             sci_axes_background.append(sci_fig[i].canvas.copy_from_bbox(sci_axes[i].bbox))
 
-        artist_3.extend(sci_axes[0].plot([], [], color='blue')[0],
-                        sci_axes[1].plot([], [], color='blue')[0])
+        artist_3.extend([sci_axes[0].plot([], [], color='blue')[0],
+                        sci_axes[1].plot([], [], color='blue')[0]])
 
 
 if __name__ == "__main__":
@@ -1300,7 +1292,7 @@ if __name__ == "__main__":
     # ----------------------------------------------- THREADING -------------------------------------------------------#
 
     t1 = threading.Thread(target=communications.scheduler, args=(app,))
-    t2 = threading.Thread(target=communications.uart_driver, args=(app, Commands))
+    t2 = threading.Thread(target=communications.uart_driver)
 
     t1.daemon = True
     t2.daemon = True
