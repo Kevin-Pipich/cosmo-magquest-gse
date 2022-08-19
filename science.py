@@ -22,9 +22,11 @@ from scipy import signal
 # Image modules
 from PIL import ImageTk, Image
 
-
 """ organizes science packet into usable data """
 def update_science(science):
+    if science is None:
+        return
+
     packet_data_length = int.from_bytes(science[4:5], "big")
     """ Time Data """
     time_since_1980 = int.from_bytes(science[7:10], "big")  # 2 bytes big endian
@@ -40,85 +42,118 @@ def update_science(science):
 
     """ Nano-Star Tracker 1 Data """
     # Attitude Quaternion
-    Beta_0 = int.from_bytes(science[11:14], "big")
-    Beta_1 = int.from_bytes(science[15:18], "big")
-    Beta_2 = int.from_bytes(science[19:22], "big")
-    Beta_3 = int.from_bytes(science[23:26], "big")
+    Beta_0 = int.from_bytes(science[11:15], "big")
+    Beta_1 = int.from_bytes(science[15:19], "big")
+    Beta_2 = int.from_bytes(science[19:23], "big")
+    Beta_3 = int.from_bytes(science[23:27], "big")
 
     attitude_quaternion = [Beta_0, Beta_1, Beta_2, Beta_3]
 
     # Angular Velocity
-    ang_vel_1 = int.from_bytes(science[27:28], "big")
-    ang_vel_2 = int.from_bytes(science[29:30], "big")
-    ang_vel_3 = int.from_bytes(science[31:32], "big")
+    ang_vel_1 = int.from_bytes(science[27:29], "big")
+    ang_vel_2 = int.from_bytes(science[29:31], "big")
+    ang_vel_3 = int.from_bytes(science[31:33], "big")
 
     angular_velocity = [ang_vel_1, ang_vel_2, ang_vel_3]
 
-    tracker_right_ascension = int.from_bytes(science[33:34], "big")
-    declination = int.from_bytes(science[35:36], "big")
-    tracker_roll = int.from_bytes(science[37:38], "big")
+    tracker_right_ascension = int.from_bytes(science[33:35], "big")
+    declination = int.from_bytes(science[35:37], "big")
+    tracker_roll = int.from_bytes(science[37:39], "big")
 
     # Attitude Covariance
-    COV_1 = int.from_bytes(science[39:42], "big")
-    COV_2 = int.from_bytes(science[43:46], "big")
-    COV_3 = int.from_bytes(science[47:50], "big")
-    COV_4 = int.from_bytes(science[51:54], "big")
-    COV_5 = int.from_bytes(science[55:58], "big")
-    COV_6 = int.from_bytes(science[59:62], "big")
+    COV_1 = int.from_bytes(science[39:43], "big")
+    COV_2 = int.from_bytes(science[43:47], "big")
+    COV_3 = int.from_bytes(science[47:51], "big")
+    COV_4 = int.from_bytes(science[51:55], "big")
+    COV_5 = int.from_bytes(science[55:59], "big")
+    COV_6 = int.from_bytes(science[59:63], "big")
 
     attitude_covariance = [COV_1, COV_2, COV_3, COV_4, COV_5, COV_6]
 
+    # Tracker Status
+    Operating_Mode = science[63]
+    Star_ID_Step = science[64]
+    Attitude_Status = science[65]
+    Rate_Est_Status = science[66]
+
+    tracker_status = [Operating_Mode, Star_ID_Step, Attitude_Status, Rate_Est_Status]
+
     nano_star_tracker_1_data = [attitude_quaternion, angular_velocity, tracker_right_ascension, declination,
-                                tracker_roll, attitude_covariance]
+                                tracker_roll, attitude_covariance, tracker_status]
     # save data from NST 1 - in form specified as in TAB-PLD-002 VRuM FSW Specifications
     NST_1.append(nano_star_tracker_1_data)
 
     """ Nano-Star Tracker 2 Data """
     # Attitude Quaternion
-    Beta_0 = int.from_bytes(science[63:66], "big")
-    Beta_1 = int.from_bytes(science[67:70], "big")
-    Beta_2 = int.from_bytes(science[71:74], "big")
-    Beta_3 = int.from_bytes(science[75:78], "big")
+    Beta_0 = int.from_bytes(science[67:71], "big")
+    Beta_1 = int.from_bytes(science[71:75], "big")
+    Beta_2 = int.from_bytes(science[75:79], "big")
+    Beta_3 = int.from_bytes(science[79:83], "big")
 
     attitude_quaternion = [Beta_0, Beta_1, Beta_2, Beta_3]
 
     # Angular Velocity
-    ang_vel_1 = int.from_bytes(science[79:80], "big")
-    ang_vel_2 = int.from_bytes(science[81:82], "big")
-    ang_vel_3 = int.from_bytes(science[83:84], "big")
+    ang_vel_1 = int.from_bytes(science[83:85], "big")
+    ang_vel_2 = int.from_bytes(science[85:87], "big")
+    ang_vel_3 = int.from_bytes(science[87:89], "big")
 
     angular_velocity = [ang_vel_1, ang_vel_2, ang_vel_3]
 
-    tracker_right_ascension = int.from_bytes(science[85:86], "big")
-    declination = int.from_bytes(science[87:88], "big")
-    tracker_roll = int.from_bytes(science[89:90], "big")
+    tracker_right_ascension = int.from_bytes(science[89:91], "big")
+    declination = int.from_bytes(science[91:93], "big")
+    tracker_roll = int.from_bytes(science[93:95], "big")
 
     # Attitude Covariance
-    COV_1 = int.from_bytes(science[91:94], "big")
-    COV_2 = int.from_bytes(science[95:98], "big")
-    COV_3 = int.from_bytes(science[99:102], "big")
-    COV_4 = int.from_bytes(science[103:106], "big")
-    COV_5 = int.from_bytes(science[107:110], "big")
-    COV_6 = int.from_bytes(science[111:114], "big")
+    COV_1 = int.from_bytes(science[95:99], "big")
+    COV_2 = int.from_bytes(science[99:103], "big")
+    COV_3 = int.from_bytes(science[103:107], "big")
+    COV_4 = int.from_bytes(science[107:111], "big")
+    COV_5 = int.from_bytes(science[111:115], "big")
+    COV_6 = int.from_bytes(science[115:119], "big")
 
     attitude_covariance = [COV_1, COV_2, COV_3, COV_4, COV_5, COV_6]
 
+    # Tracker Status
+    Operating_Mode = science[119]
+    Star_ID_Step = science[120]
+    Attitude_Status = science[121]
+    Rate_Est_Status = science[122]
+
+    tracker_status = [Operating_Mode, Star_ID_Step, Attitude_Status, Rate_Est_Status]
+
     nano_star_tracker_2_data = [attitude_quaternion, angular_velocity, tracker_right_ascension, declination,
-                                tracker_roll, attitude_covariance]
+                                tracker_roll, attitude_covariance, tracker_status]
     # save data from NST 2 - in form specified as in TAB-PLD-002 VRuM FSW Specifications
     NST_2.append(nano_star_tracker_2_data)
 
     """ Scalar Magnetometer Data and State """
     flag = False
-    for i in range(118, packet_data_length, 4):
-        Raw_Scalar_Magnetometer_Data.append(int.from_bytes(science[i:i + 3], "big"))  # Reads 4 bytes of mag out
-        Raw_Scalar_Magnetometer_State.append(int.from_bytes(science[i + 4], "big"))  # Reads 1 byte of state
-        if Raw_Scalar_Magnetometer_State[-1] != Raw_Scalar_Magnetometer_State[-2]:
+    for i in range(123, packet_data_length, 4):
+        Raw_Scalar_Magnetometer_Data.append(int.from_bytes(science[i:i + 4], "big"))  # Reads 4 bytes of mag out
+        Raw_Scalar_Magnetometer_State = ("{:08b}".format(science[i + 4]))  # Reads 1 byte of state
+        Magnetometer_Status.append(int(Raw_Scalar_Magnetometer_State[-4:], 2))  # Saves Magnetometer Status
+        Mod8_Counter.append(int(Raw_Scalar_Magnetometer_State[:3], 2))  # Saves scalar "timestamp"
+        CRC_Flag.append(Raw_Scalar_Magnetometer_State[3])  # Saves CRC flag
+
+        # Confirm that the no packets were skipped
+        if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and (Mod8_Counter[-2] != 7 and Mod8_Counter[-1] != 0):
+            if Mod8_Counter[-2] > Mod8_Counter[-1]:
+                skipped_packets = 7 - Mod8_Counter[-2] + Mod8_Counter[-1]
+            else:
+                skipped_packets = Mod8_Counter[-1] - Mod8_Counter[-2]
+            print("Packet Skipped!\nNumber of Skipped Packets: " + str(skipped_packets))
+
+        # Confirm the CRC Flag is correct
+        if CRC_Flag[-1] != 1:
+            print("Scalar Transmission of CRC Failed!")
+
+        # Check if the status of the magnetometer has changed
+        if Magnetometer_Status[-1] != Magnetometer_Status[-2]:
             t3 = Thread(target=update_state)
             t3.daemon = True
             t3.start()
-            if i > 118:
-                flag = True
+            flag = True
+
     Scalar_Magnetometer_Data.append(np.mean(Raw_Scalar_Magnetometer_Data[-100:]))  # average of all the raw scalar data
     State_Change.append(flag)
 
@@ -126,8 +161,8 @@ def update_science(science):
     dt = int(current_scalar_sample_rate[0].text[:-3])  # sample rate
 
     n = len(Raw_Scalar_Magnetometer_Data[-100:])  # take a fft of the 100 data points given each second
-    fhat = np.fft.fft(Raw_Scalar_Magnetometer_Data[-100:], n)
-    FFT_amp = fhat * np.conj(fhat) / n
+    f_hat = np.fft.fft(Raw_Scalar_Magnetometer_Data[-100:], n)
+    FFT_amp = f_hat * np.conj(f_hat) / n
     freq = (1 / (dt * n)) * np.arange(n)
     L = np.arange(1, np.floor(n / 2), dtype='int')
 
@@ -211,7 +246,7 @@ def plot_science():
 
 """ updates the magnetometer state live """
 def update_state():
-    match Raw_Scalar_Magnetometer_State[-1]:
+    match Magnetometer_Status[-1]:
         case 3:
             state_label[0].configure(text="Warm Up")
 
@@ -272,7 +307,7 @@ def new_science_display(Science):
 
 """ updates values in the live science display """
 def update_science_display():
-    match Raw_Scalar_Magnetometer_State[-1]:
+    match Magnetometer_Status[-1]:
         case 3:
             current_state = "Warm Up"
         case 4:
@@ -298,14 +333,15 @@ def update_science_display():
                                "Attitude Quaternions\nβ\u2080: " + str(NST_1[-1][0][0]) + "\n\nβ\u2081: " +
                                str(NST_1[-1][0][1]) + "\n\nβ\u2082: " + str(NST_1[-1][0][2]) + "\n\nβ\u2083: " +
                                str(NST_1[-1][0][3]) + "\n\nAngular Velocity\nω\u2081: " + str(NST_1[-1][1][0])
-                               + "\n\nω\u2082: " + str(NST_1[-1][1][1]) + "\n\nω\u2083: " + str(
-                              NST_1[-1][1][2]) +
+                               + "\n\nω\u2082: " + str(NST_1[-1][1][1]) + "\n\nω\u2083: " + str(NST_1[-1][1][2]) +
                                "\n\nTracker Right Ascension: " + str(NST_1[-1][2]) + "\n\nDeclination: " +
                                str(NST_1[-1][3]) + "\n\nTracker Roll: " + str(NST_1[-1][4]) +
                                "\n\nAttitude Covariance\nCOV 1: " + str(NST_1[-1][5][0]) + "\n\nCOV 2: "
                                + str(NST_1[-1][5][1]) + "\n\nCOV 3: " + str(NST_1[-1][5][2]) + "\n\nCOV 4: " +
                                str(NST_1[-1][5][3]) + "\n\nCOV 5: " + str(NST_1[-1][5][4]) + "\n\nCOV 6: " +
-                               str(NST_1[-1][5][5]))
+                               str(NST_1[-1][5][5]) + "\n\nOp Mode: " + str(NST_1[-1][6][0]) + "\n\nStarID Step: " +
+                               str(NST_1[-1][6][1]) + "\n\nAttitude Status: " + str(NST_1[-1][6][2]) +
+                               "\n\nRate Est Status: " + str(NST_1[-1][6][3]))
     label2.grid(row=1, column=0)
 
     label3 = ctk.CTkLabel(master=sci_display_window,
@@ -313,14 +349,15 @@ def update_science_display():
                                "Attitude Quaternions\nβ\u2080: " + str(NST_2[-1][0][0]) + "\n\nβ\u2081: " +
                                str(NST_2[-1][0][1]) + "\n\nβ\u2082: " + str(NST_2[-1][0][2]) + "\n\nβ\u2083: " +
                                str(NST_2[-1][0][3]) + "\n\nAngular Velocity\nω\u2081: " + str(NST_2[-1][1][0])
-                               + "\n\nω\u2082: " + str(NST_2[-1][1][1]) + "\n\nω\u2083: " + str(
-                              NST_2[-1][1][2]) +
+                               + "\n\nω\u2082: " + str(NST_2[-1][1][1]) + "\n\nω\u2083: " + str(NST_2[-1][1][2]) +
                                "\n\nTracker Right Ascension: " + str(NST_2[-1][2]) + "\n\nDeclination: " +
                                str(NST_2[-1][3]) + "\n\nTracker Roll: " + str(NST_2[-1][4]) +
                                "\n\nAttitude Covariance\nCOV 1: " + str(NST_2[-1][5][0]) + "\n\nCOV 2: "
                                + str(NST_2[-1][5][1]) + "\n\nCOV 3: " + str(NST_2[-1][5][2]) + "\n\nCOV 4: " +
                                str(NST_2[-1][5][3]) + "\n\nCOV 5: " + str(NST_2[-1][5][4]) + "\n\nCOV 6: " +
-                               str(NST_2[-1][5][5]))
+                               str(NST_2[-1][5][5]) + "\n\nOp Mode: " + str(NST_2[-1][6][0]) + "\n\nStarID Step: " +
+                               str(NST_2[-1][6][1]) + "\n\nAttitude Status: " + str(NST_2[-1][6][2]) +
+                               "\n\nRate Est Status: " + str(NST_2[-1][6][3]))
     label3.grid(row=1, column=1)
 
 
@@ -332,10 +369,12 @@ def save_to_file():
         header = ['Timestamp', 'Magnetometer Output', 'Magnetometer State', 'β0 (NST 1)', 'β1 (NST 1)',
                   'β2 (NST 1)', 'β3 (NST 1)', 'ω1 (NST 1)', 'ω2 (NST 1)', 'ω3 (NST 1)',
                   'Tracker Right Ascension (NST 1)', 'Declination (NST 1)', 'Tracker Roll (NST 1)', 'COV1 (NST 1)',
-                  'COV2 (NST 1)', 'COV3 (NST 1)', 'COV4 (NST 1)', 'COV5 (NST 1)', 'COV6 (NST 1)', 'β0 (NST 2)',
-                  'β1 (NST 2)', 'β2 (NST 2)', 'β3 (NST 2)', 'ω1 (NST 2)', 'ω2 (NST 2)', 'ω3 (NST 2)',
+                  'COV2 (NST 1)', 'COV3 (NST 1)', 'COV4 (NST 1)', 'COV5 (NST 1)', 'COV6 (NST 1)', 'Op Mode (NST 1)',
+                  'StarID Step (NST 1)', 'Attitude Status (NST 1)', 'Rate Est Status (NST 1)',
+                  'β0 (NST 2)', 'β1 (NST 2)', 'β2 (NST 2)', 'β3 (NST 2)', 'ω1 (NST 2)', 'ω2 (NST 2)', 'ω3 (NST 2)',
                   'Tracker Right Ascension (NST 2)', 'Declination (NST 2)', 'Tracker Roll (NST 2)', 'COV1 (NST 2)',
-                  'COV2 (NST 2)', 'COV3 (NST 2)', 'COV4 (NST 2)', 'COV5 (NST 2)', 'COV6 (NST 2)']
+                  'COV2 (NST 2)', 'COV3 (NST 2)', 'COV4 (NST 2)', 'COV5 (NST 2)', 'COV6 (NST 2)', 'Op Mode (NST 2)',
+                  'StarID Step (NST 2)', 'Attitude Status (NST 2)', 'Rate Est Status (NST 2)']
         filename = "Magnetometer_Data_" + strftime("%Y%m%d%H%M%S", gmtime(time())) + ".csv"
 
         open(filename, 'x')
@@ -350,13 +389,14 @@ def save_to_file():
         # write the fields
         sci_csvwriter[0].writerow(header)
 
-    row = [Science_Time[-1], Scalar_Magnetometer_Data[-1], Raw_Scalar_Magnetometer_State[-1], NST_1[-1][0][0],
+    row = [Science_Time[-1], Scalar_Magnetometer_Data[-1], Magnetometer_Status[-1], NST_1[-1][0][0],
            NST_1[-1][0][1], NST_1[-1][0][2], NST_1[-1][0][3], NST_1[-1][1][0], NST_1[-1][1][1], NST_1[-1][1][2],
            NST_1[-1][2], NST_1[-1][3], NST_1[-1][4], NST_1[-1][5][0], NST_1[-1][5][1], NST_1[-1][5][2],
-           NST_1[-1][5][3], NST_1[-1][5][4], NST_1[-1][5][5], NST_2[-1][0][0], NST_2[-1][0][1], NST_2[-1][0][2],
-           NST_2[-1][0][3], NST_2[-1][1][0], NST_2[-1][1][1], NST_2[-1][1][2], NST_2[-1][2], NST_2[-1][3],
-           NST_2[-1][4], NST_2[-1][5][0], NST_2[-1][5][1], NST_2[-1][5][2], NST_2[-1][5][3], NST_2[-1][5][4],
-           NST_2[-1][5][5]]
+           NST_1[-1][5][3], NST_1[-1][5][4], NST_1[-1][5][5], NST_1[-1][6][0], NST_1[-1][6][1], NST_1[-1][6][2],
+           NST_1[-1][6][3], NST_2[-1][0][0], NST_2[-1][0][1], NST_2[-1][0][2], NST_2[-1][0][3], NST_2[-1][1][0],
+           NST_2[-1][1][1], NST_2[-1][1][2], NST_2[-1][2], NST_2[-1][3], NST_2[-1][4], NST_2[-1][5][0],
+           NST_2[-1][5][1], NST_2[-1][5][2], NST_2[-1][5][3], NST_2[-1][5][4], NST_2[-1][5][5], NST_2[-1][6][0],
+           NST_2[-1][6][1], NST_2[-1][6][2], NST_2[-1][6][3]]
     sci_csvwriter[0].writerow(row)
 
 
