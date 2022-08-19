@@ -103,13 +103,13 @@ VRUM_TEMP_4 = deque(zeros(deque_size))  # Initialize VRuM temperature 4
 # -----------------------------------------FIGURE & AXES PREALLOCATION-------------------------------------------------#
 
 """ Housekeeping Page Plots """
-fig = []
+fig = []  # All housekeeping figures
 
-axes = []
-axes_background = []
+axes = []  # Left axes for housekeeping plots
+axes_background = []  # Saved background of left housekeeping axes
 
-axes_twins = []
-axes_twins_background = []
+axes_twins = []  # Right axes for housekeeping plots
+axes_twins_background = []  # Saved background of right housekeeping axes
 
 plot_names = ["+5V Rail Analog Board", "12V Rail Digital Board", "3.3V Rail HK Sensors",
                       "5VST Rail Star Trackers", "12VS Rail Scalar Boards", "Scalar Board No.1 Ch.1",
@@ -118,19 +118,19 @@ plot_names = ["+5V Rail Analog Board", "12V Rail Digital Board", "3.3V Rail HK S
                       "Temperature at 3.3V Regulator", "Temperature at Scalar Board No.1",
                       "Temperature at Scalar Board No.2", "Coil 1", "Coil 2", "Coil 3"]
 
-artist_1 = []
-artist_2 = []
+artist_1 = []  # Artist for left axes
+artist_2 = []  # Artist for right axes
 
 """ Science Page Plots """
-sci_fig = []
+sci_fig = []  # All science figures
 
-sci_axes = []
-sci_axes_background = []
+sci_axes = []  # All science axes
+sci_axes_background = []  # Saved background of science plots
 
 sci_plot_names = ["Magnetometer Data Time Domain", "Magnetometer Data Frequency Domain",
                   "Magnetometer Spectrogram"]
 
-artist_3 = []
+artist_3 = []  # Artist for science axes
 
 # ---------------------------------------------SCALE LIMITS VARIABLES--------------------------------------------------#
 
@@ -155,27 +155,29 @@ fft_limits = [0, 10]
 ERROR_REGISTER_0 = deque(zeros(deque_size))
 ERROR_REGISTER_1 = deque(zeros(deque_size))
 
+ERROR_LIST = []
+
 # ---------------------------------------SCIENCE DATA/STATE PREALLOCATION----------------------------------------------#
 
 Science_Time = deque(zeros(sci_deque_size))  # Initialize GPS time
 
-NST_1 = deque(zeros(sci_deque_size))
-NST_2 = deque(zeros(sci_deque_size))
+NST_1 = deque(zeros(sci_deque_size))  # Star Tracker 1 data
+NST_2 = deque(zeros(sci_deque_size))  # Star Tracker 2 data
 
-Raw_Scalar_Magnetometer_Data = deque(zeros(1025))
-Raw_Scalar_Magnetometer_State = deque(zeros(100))
+Raw_Scalar_Magnetometer_Data = deque(zeros(1025))  # Raw scalar data (size = 1025 for spectrogram)
+Scalar_Magnetometer_Data = deque(zeros(sci_deque_size))  # Average of last 100 magnetometer data
 
-State_Colors = deque(zeros(sci_deque_size))
-segments = deque(zeros(sci_deque_size))
+Magnetometer_Status = deque(zeros(100))  # State of the magnetometer
+State_Change = deque(zeros(sci_deque_size))  # Did the magnetometer change state in the last scalar packet
+Mod8_Counter = deque(zeros(100))  # Packet counter to ensure no packets are skipped
+CRC_Flag = deque(zeros(100))  # CRC flag for scalar packets
 
-Scalar_Magnetometer_Data = deque(zeros(sci_deque_size))
-PSD = deque(zeros(sci_deque_size))
-Freq = deque(zeros(sci_deque_size))
-State_Change = deque(zeros(sci_deque_size))
+PSD = deque(zeros(sci_deque_size))  # Power spectral density of magnetometer data
+Freq = deque(zeros(sci_deque_size))  # Frequencies of magnetometer data
 
-Spec_f = deque(zeros(sci_deque_size))
-Spec_t = deque(zeros(sci_deque_size))
-Spec_Sxx = deque(zeros(sci_deque_size))
+Spec_f = deque(zeros(sci_deque_size))  # Spectrogram frequency
+Spec_t = deque(zeros(sci_deque_size))  # Spectrogram time
+Spec_Sxx = deque(zeros(sci_deque_size))  # Spectrogram
 
 # ---------------------------------------------DISPLAY WINDOWS & FRAMES------------------------------------------------#
 housekeeping_display = [False]  # flag to determine if the window is open
