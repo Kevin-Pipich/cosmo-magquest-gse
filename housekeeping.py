@@ -62,7 +62,6 @@ def safety_check(Voltage_List, Current_List, Temperature_List):
 
 """ updates the values of each housekeeping value """
 def update_housekeeping(housekeeping_packet):
-
     HK_data_points.popleft()
     HK_data_points.append(int(HK_data_points[-1] + 1))
 
@@ -191,17 +190,16 @@ def update_housekeeping(housekeeping_packet):
 
 """ updates housekeeping plots live """
 def plot_housekeeping(Voltage_List, Current_List, Temperature_List, Offset_List, Amplitude_List):
-
     # Updates all the figures which were already created
     for i in range(0, len(fig)):
         if i < 11:
             rescale_plots(Voltage_List, i, 1)
             rescale_plots(Current_List, i, 2)
         elif 11 <= i < 15:
-            rescale_plots(Temperature_List, i-11, 3)
+            rescale_plots(Temperature_List, i - 11, 3)
         else:
             rescale_plots(Offset_List, i, 4)
-            rescale_plots(Amplitude_List, i-15, 5)
+            rescale_plots(Amplitude_List, i - 15, 5)
 
         fig[i].tight_layout()
         fig[i].canvas.draw()
@@ -291,15 +289,15 @@ def rescale_plots(List, idx, limits):
                 max_limit = temp_limits[idx][1]
 
             temp_limits[idx] = [min_limit, max_limit]
-            axes[idx+11].set_ylim(temp_limits[idx])
-            axes_background[idx+11] = fig[idx+11].canvas.copy_from_bbox(axes[idx+11].bbox)
+            axes[idx + 11].set_ylim(temp_limits[idx])
+            axes_background[idx + 11] = fig[idx + 11].canvas.copy_from_bbox(axes[idx + 11].bbox)
 
             if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx+11].canvas.restore_region(axes_background[idx+11])
+                fig[idx + 11].canvas.restore_region(axes_background[idx + 11])
             else:
-                fig[idx+11].canvas.restore_region(axes_background[idx+11])
-                artist_1[idx+11].set_xdata(HK_x_values)
-                artist_1[idx+11].set_ydata(List[idx+11])
+                fig[idx + 11].canvas.restore_region(axes_background[idx + 11])
+                artist_1[idx + 11].set_xdata(HK_x_values)
+                artist_1[idx + 11].set_ydata(List[idx + 11])
 
         case 4:  # offset limits
             if max(List[idx]) > offset_limits[idx][1]:
@@ -320,15 +318,15 @@ def rescale_plots(List, idx, limits):
                 max_limit = offset_limits[idx][1]
 
             offset_limits[idx] = [min_limit, max_limit]
-            axes[idx+15].set_ylim(offset_limits[idx])
-            axes_background[idx+15] = fig[idx+15].canvas.copy_from_bbox(axes[idx+15].bbox)
+            axes[idx + 15].set_ylim(offset_limits[idx])
+            axes_background[idx + 15] = fig[idx + 15].canvas.copy_from_bbox(axes[idx + 15].bbox)
 
             if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx+15].canvas.restore_region(axes_background[idx+15])
+                fig[idx + 15].canvas.restore_region(axes_background[idx + 15])
             else:
-                fig[idx+15].canvas.restore_region(axes_background[idx+15])
-                artist_1[idx+15].set_xdata(HK_x_values)
-                artist_1[idx+15].set_ydata(List[idx])
+                fig[idx + 15].canvas.restore_region(axes_background[idx + 15])
+                artist_1[idx + 15].set_xdata(HK_x_values)
+                artist_1[idx + 15].set_ydata(List[idx])
 
         case 5:  # amplitude limits
             if max(List[idx]) > amplitude_limits[idx][1]:
@@ -349,15 +347,15 @@ def rescale_plots(List, idx, limits):
                 max_limit = amplitude_limits[idx][1]
 
             amplitude_limits[idx] = [min_limit, max_limit]
-            axes_twins[idx+11].set_ylim(amplitude_limits[idx])
-            axes_twins_background[idx+11] = fig[idx+15].canvas.copy_from_bbox(axes_twins[idx+11].bbox)
+            axes_twins[idx + 11].set_ylim(amplitude_limits[idx])
+            axes_twins_background[idx + 11] = fig[idx + 15].canvas.copy_from_bbox(axes_twins[idx + 11].bbox)
 
             if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx+15].canvas.restore_region(axes_twins_background[idx+11])
+                fig[idx + 15].canvas.restore_region(axes_twins_background[idx + 11])
             else:
-                fig[idx+15].canvas.restore_region(axes_twins_background[idx+11])
-                artist_2[idx+11].set_xdata(HK_x_values)
-                artist_2[idx+11].set_ydata(List[idx])
+                fig[idx + 15].canvas.restore_region(axes_twins_background[idx + 11])
+                artist_2[idx + 11].set_xdata(HK_x_values)
+                artist_2[idx + 11].set_ydata(List[idx])
 
 
 """ creates a new window displaying the live housekeeping data """
@@ -373,7 +371,7 @@ def new_housekeeping_display(Housekeeping):
 
     hk_display_window.clear()
     hk_display_window.append(ctk.CTkToplevel())
-    hk_display_window[0].geometry("365x750")
+    hk_display_window[0].geometry("635x750")
     hk_display_window[0].title("Live Housekeeping Data")
     hk_display_window[0].resizable(False, False)
     hk_display_window[0].protocol("WM_DELETE_WINDOW", close_display)
@@ -383,62 +381,88 @@ def new_housekeeping_display(Housekeeping):
 
 """ updates the values in the live housekeeping data display """
 def update_housekeeping_display():
-    label = ctk.CTkLabel(hk_display_window[0], text="Data Point " + str(int(HK_data_points[-1])) + "\n\n"
-                                                 + "============ Rail Voltage/ Currents ============" + "\n\n"
-                                                 + "+5V Rail Analog Board Voltage: " + str(
+    label = ctk.CTkLabel(hk_display_window[0], text="Data Point " + str(int(HK_data_points[-1])) + "\n\n")
+    label.grid(row=0, column=0, columnspan=2, sticky="ew")
+
+    label1 = ctk.CTkLabel(hk_display_window[0], text="Data Point " + str(int(HK_data_points[-1])) + "\n\n"
+                                                     + "============ Rail Voltage/ Currents ============" + "\n\n"
+                                                     + "+5V Rail Analog Board Voltage: " + str(
         AB_voltage[-1]) + " V" + "\n"
                                  "+5V Rail Analog Board Current: " + str(AB_current[-1]) + " mA" + "\n\n"
-                                                 + "12V Rail Digital Board Voltage: " + str(
+                                                     + "12V Rail Digital Board Voltage: " + str(
         DB_voltage[-1]) + " V" + "\n"
-                                                 + "12V Rail Digital Board Current: " + str(
+                                                     + "12V Rail Digital Board Current: " + str(
         DB_current[-1]) + " mA" + "\n\n"
-                                                 + "3.3V Rail Housekeeping Sensors Voltage: " + str(
+                                                     + "3.3V Rail Housekeeping Sensors Voltage: " + str(
         HK_voltage[-1]) + " V" + "\n"
-                                                 + "3.3V Rail Housekeeping Sensors Current: " + str(
+                                                     + "3.3V Rail Housekeeping Sensors Current: " + str(
         HK_current[-1]) + " mA" + "\n\n"
-                                                 + "5VST Rail Star Trackers Voltage: " + str(
+                                                     + "5VST Rail Star Trackers Voltage: " + str(
         ST_voltage[-1]) + " V" + "\n"
-                                                 + "5VST Rail Star Trackers Current: " + str(
+                                                     + "5VST Rail Star Trackers Current: " + str(
         ST_current[-1]) + " mA" + "\n\n"
-                                                 + "12VS Rail Scalar Board Voltage: " + str(
+                                                     + "12VS Rail Scalar Board Voltage: " + str(
         SB_voltage[-1]) + " V" + "\n"
-                                                 + "12VS Rail Scalar Board Current: " + str(
+                                                     + "12VS Rail Scalar Board Current: " + str(
         SB_current[-1]) + " mA" + "\n\n"
-                                                 + "========== Scalar Boards Voltage/ Currents ==========" + "\n\n"
-                                                 + "Scalar Board No.1 Ch.1 Voltage: " + str(
+                                                     + "========== Scalar Boards Voltage/ Currents ==========" + "\n\n"
+                                                     + "Scalar Board No.1 Ch.1 Voltage: " + str(
         SBN1C1_voltage[-1]) + " V" + "\n"
-                                                 + "Scalar Board No.1 Ch.1 Current: " + str(
+                                                     + "Scalar Board No.1 Ch.1 Current: " + str(
         SBN1C1_current[-1]) + " mA" + "\n\n"
-                                                 + "Scalar Board No.1 Ch.2 Voltage: " + str(
+                                                     + "Scalar Board No.1 Ch.2 Voltage: " + str(
         SBN1C2_voltage[-1]) + " V" + "\n"
-                                                 + "Scalar Board No.1 Ch.2 Current: " + str(
+                                                     + "Scalar Board No.1 Ch.2 Current: " + str(
         SBN1C2_current[-1]) + " mA" + "\n\n"
-                                                 + "Scalar Board No.1 Ch.3 Voltage: " + str(
+                                                     + "Scalar Board No.1 Ch.3 Voltage: " + str(
         SBN1C3_voltage[-1]) + " V" + "\n"
-                                                 + "Scalar Board No.1 Ch.3 Current: " + str(
+                                                     + "Scalar Board No.1 Ch.3 Current: " + str(
         SBN1C3_current[-1]) + " mA" + "\n\n"
-                                                 + "Scalar Board No.2 Ch.1 Voltage: " + str(
+                                                     + "Scalar Board No.2 Ch.1 Voltage: " + str(
         SBN2C1_voltage[-1]) + " V" + "\n"
-                                                 + "Scalar Board No.2 Ch.1 Current: " + str(
+                                                     + "Scalar Board No.2 Ch.1 Current: " + str(
         SBN2C1_current[-1]) + " mA" + "\n\n"
-                                                 + "Scalar Board No.2 Ch.2 Voltage: " + str(
+                                                     + "Scalar Board No.2 Ch.2 Voltage: " + str(
         SBN2C2_voltage[-1]) + " V" + "\n"
-                                                 + "Scalar Board No.2 Ch.2 Current: " + str(
+                                                     + "Scalar Board No.2 Ch.2 Current: " + str(
         SBN2C2_current[-1]) + " mA" + "\n\n"
-                                                 + "Scalar Board No.2 Ch.3 Voltage: " + str(
+                                                     + "Scalar Board No.2 Ch.3 Voltage: " + str(
         SBN2C3_voltage[-1]) + " V" + "\n"
-                                                 + "Scalar Board No.2 Ch.3 Current: " + str(
+                                                     + "Scalar Board No.2 Ch.3 Current: " + str(
         SBN2C3_current[-1]) + " mA" + "\n\n"
-                                                 + "================ Temperature Values ================" + "\n\n"
-                                                 + "Temperature at +/-5V Regulator: " + str(
+                                                     + "================ Temperature Values ================" + "\n\n"
+                                                     + "Temperature at +/-5V Regulator: " + str(
         REG5V_temp[-1]) + " C" + "\n\n"
-                                                 + "Temperature at 3.3V Regulator: " + str(
+                                                     + "Temperature at 3.3V Regulator: " + str(
         REG3V3_temp[-1]) + " C" + "\n\n"
-                                                 + "Temperature at Scalar Board No.1: " + str(
+                                                     + "Temperature at Scalar Board No.1: " + str(
         SB1_temp[-1]) + " C" + "\n\n"
-                                                 + "Temperature at Scalar Board No.2: " + str(
+                                                     + "Temperature at Scalar Board No.2: " + str(
         SB2_temp[-1]) + " C" + "\n\n")
-    label.grid(row=0, column=0)
+    label1.grid(row=1, column=0)
+
+    label2 = ctk.CTkLabel(hk_display_window[0], text="============ Calibration Values ============" + "\n\n"
+                                                  + "Coil 1 Offset: " + str(
+        round(COIL1_OFFSET[-1], 3)) + " mA" + "\n"
+                                              "Coil 1 Amplitude: " + str(round(COIL1_AMP[-1], 3)) + " mA" + "\n\n"
+                                                  + "Coil 2 Offset: " + str(
+        round(COIL2_OFFSET[-1], 3)) + " mA" + "\n"
+                                                  + "Coil 2 Amplitude: " + str(
+        round(COIL2_AMP[-1], 3)) + " mA" + "\n\n"
+                                                  + "Coil 3 Offset: " + str(
+        round(COIL3_OFFSET[-1], 3)) + " V" + "\n"
+                                                  + "Coil 3 Amplitude: " + str(
+        round(COIL3_AMP[-1], 3)) + " mA" + "\n\n"
+                                                  + "========== VRuM Temperatures ==========" + "\n\n"
+                                                  + "VRuM Temperature No.1: " + str(
+        round(VRUM_TEMP_1[-1], 3)) + " C" + "\n\n"
+                                                  + "VRuM Temperature No.2: " + str(
+        round(VRUM_TEMP_2[-1], 3)) + " C" + "\n\n"
+                                                  + "VRuM Temperature No.3: " + str(
+        round(VRUM_TEMP_3[-1], 3)) + " C" + "\n\n"
+                                                  + "VRuM Temperature No.4: " + str(
+        round(VRUM_TEMP_4[-1], 3)) + " C" + "\n\n")
+    label2.grid(row=1, column=1)
 
 
 """ saves the last n data points to a .csv file """
@@ -503,8 +527,8 @@ def save_data():
 
 """ updates the error list """
 def update_error():
-    # Create the Error List
-    Error_List = []
+    # Clear the Error List
+    ERROR_LIST = []
     e0 = bin(ERROR_REGISTER_0[-1])[2:]
     e1 = bin(ERROR_REGISTER_1[-1])[2:]
 
@@ -534,91 +558,88 @@ def update_error():
             CDH_Comm_State = "Incorrect Value"
             print("Incorrect Error for CDH Comm State Machine")
 
-    Error_List.append(CDH_Comm_State)
+    ERROR_LIST.append(CDH_Comm_State)
 
     # Housekeeping Task Status (HK Sensors Configuration Status)
-    Error_List.append([e0[4] == "1", "INA No.1 (Digital Board) configuration"])
-    Error_List.append([e0[5] == "1", "INA No.2 (Digital Board) configuration"])
-    Error_List.append([e0[6] == "1", "INA (Scalar Board No.1) configuration"])
-    Error_List.append([e0[7] == "1", "INA (Scalar Board No.2) configuration"])
-    Error_List.append([e0[8] == "1", "TMP No.1 (Digital Board) configuration"])
-    Error_List.append([e0[9] == "1", "TMP No.2 (Digital Board) configuration"])
-    Error_List.append([e0[10] == "1", "TMP (Scalar Board No.2) configuration"])
-    Error_List.append([e0[11] == "1", "TMP (Scalar Board No.2) configuration"])
+    ERROR_LIST.append([e0[4] == "1", "INA No.1 (Digital Board) configuration"])
+    ERROR_LIST.append([e0[5] == "1", "INA No.2 (Digital Board) configuration"])
+    ERROR_LIST.append([e0[6] == "1", "INA (Scalar Board No.1) configuration"])
+    ERROR_LIST.append([e0[7] == "1", "INA (Scalar Board No.2) configuration"])
+    ERROR_LIST.append([e0[8] == "1", "TMP No.1 (Digital Board) configuration"])
+    ERROR_LIST.append([e0[9] == "1", "TMP No.2 (Digital Board) configuration"])
+    ERROR_LIST.append([e0[10] == "1", "TMP (Scalar Board No.2) configuration"])
+    ERROR_LIST.append([e0[11] == "1", "TMP (Scalar Board No.2) configuration"])
 
     # Housekeeping Task Status (HK Sensor Poll Status)
-    Error_List.append([e0[12] == "1", "INA No.1 (Digital Board) polling"])
-    Error_List.append([e0[13] == "1", "INA No.2 (Digital Board) polling"])
-    Error_List.append([e0[14] == "1", "INA (Scalar Board No.1) polling"])
-    Error_List.append([e0[15] == "1", "INA (Scalar Board No.2) polling"])
-    Error_List.append([e0[16] == "1", "TMP No.1 (Digital Board) polling"])
-    Error_List.append([e0[17] == "1", "TMP No.2 (Digital Board) polling"])
-    Error_List.append([e0[18] == "1", "TMP (Scalar Board No.2) polling"])
-    Error_List.append([e0[19] == "1", "TMP (Scalar Board No.2) polling"])
+    ERROR_LIST.append([e0[12] == "1", "INA No.1 (Digital Board) polling"])
+    ERROR_LIST.append([e0[13] == "1", "INA No.2 (Digital Board) polling"])
+    ERROR_LIST.append([e0[14] == "1", "INA (Scalar Board No.1) polling"])
+    ERROR_LIST.append([e0[15] == "1", "INA (Scalar Board No.2) polling"])
+    ERROR_LIST.append([e0[16] == "1", "TMP No.1 (Digital Board) polling"])
+    ERROR_LIST.append([e0[17] == "1", "TMP No.2 (Digital Board) polling"])
+    ERROR_LIST.append([e0[18] == "1", "TMP (Scalar Board No.2) polling"])
+    ERROR_LIST.append([e0[19] == "1", "TMP (Scalar Board No.2) polling"])
 
     # Coil Control Task Status (Coil Drivers Configuration Status)
-    Error_List.append([e0[20] == "1", "WaveGen No.1 (Analog Board) configuration"])
-    Error_List.append([e0[21] == "1", "WaveGen No.2 (Analog Board) configuration"])
-    Error_List.append([e0[22] == "1", "WaveGen No.3 (Analog Board) configuration"])
-    Error_List.append([e0[23] == "1", "DigPot No.1 (Analog Board) configuration"])
-    Error_List.append([e0[24] == "1", "DigPot No.2 (Analog Board) configuration"])
-    Error_List.append([e0[25] == "1", "DigPot No.3 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[20] == "1", "WaveGen No.1 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[21] == "1", "WaveGen No.2 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[22] == "1", "WaveGen No.3 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[23] == "1", "DigPot No.1 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[24] == "1", "DigPot No.2 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[25] == "1", "DigPot No.3 (Analog Board) configuration"])
 
     # Coil Control Task Status (Coil Drivers Control Status)
-    Error_List.append([e0[26] == "1", "WaveGen No.1 (Analog Board) control"])
-    Error_List.append([e0[27] == "1", "WaveGen No.2 (Analog Board) control"])
-    Error_List.append([e0[28] == "1", "WaveGen No.3 (Analog Board) control"])
-    Error_List.append([e0[29] == "1", "DigPot No.1 (Analog Board) control"])
-    Error_List.append([e0[30] == "1", "DigPot No.2 (Analog Board) control"])
-    Error_List.append([e0[31] == "1", "DigPot No.3 (Analog Board) control"])
+    ERROR_LIST.append([e0[26] == "1", "WaveGen No.1 (Analog Board) control"])
+    ERROR_LIST.append([e0[27] == "1", "WaveGen No.2 (Analog Board) control"])
+    ERROR_LIST.append([e0[28] == "1", "WaveGen No.3 (Analog Board) control"])
+    ERROR_LIST.append([e0[29] == "1", "DigPot No.1 (Analog Board) control"])
+    ERROR_LIST.append([e0[30] == "1", "DigPot No.2 (Analog Board) control"])
+    ERROR_LIST.append([e0[31] == "1", "DigPot No.3 (Analog Board) control"])
 
     # Science Task Status (Science Instruments Configuration Status)
-    Error_List.append([e1[0] == "1", "Scalar Board No.1 configuration"])
-    Error_List.append([e1[1] == "1", "Scalar Board No.2 configuration"])
-    Error_List.append([e1[2] == "1", "Star Tracker No.1 configuration"])
-    Error_List.append([e1[3] == "1", "Star Tracker No.2 configuration"])
+    ERROR_LIST.append([e1[0] == "1", "Scalar Board No.1 configuration"])
+    ERROR_LIST.append([e1[1] == "1", "Scalar Board No.2 configuration"])
+    ERROR_LIST.append([e1[2] == "1", "Star Tracker No.1 configuration"])
+    ERROR_LIST.append([e1[3] == "1", "Star Tracker No.2 configuration"])
 
     # Science Task Status (Science Instruments Read Status)
-    Error_List.append([e1[4] == "1", "Scalar Board No.1 read"])
-    Error_List.append([e1[5] == "1", "Scalar Board No.2 read"])
-    Error_List.append([e1[6] == "1", "Star Tracker No.1 read"])
-    Error_List.append([e1[7] == "1", "Star Tracker No.2 read"])
+    ERROR_LIST.append([e1[4] == "1", "Scalar Board No.1 read"])
+    ERROR_LIST.append([e1[5] == "1", "Scalar Board No.2 read"])
+    ERROR_LIST.append([e1[6] == "1", "Star Tracker No.1 read"])
+    ERROR_LIST.append([e1[7] == "1", "Star Tracker No.2 read"])
 
-    process_error(Error_List)
+    process_error()
 
 
 """ changes colors of label to show if an error is present """
-def process_error(Error_List):
-    if Error_List[0] == "OK":
+def process_error():
+    if ERROR_LIST[0] == "OK":
         color = "green"
     else:
         color = "darkred"
-    error_grid[0].configure(text="CDH Comm Task State: " + Error_List[0],
-                                                      fg_color=color)
-    for i in range(1, len(Error_List)):
-        if Error_List[i][0] is True:
+    error_grid[0].configure(text="CDH Comm Task State: " + ERROR_LIST[0],
+                            fg_color=color)
+    for i in range(1, len(ERROR_LIST)):
+        if ERROR_LIST[i][0] is True:
             color = "green"
         else:
             color = "darkred"
-        error_grid[i - 1].configure(text=Error_List[i][1], fg_color=color)
+        error_grid[i - 1].configure(text=ERROR_LIST[i][1], fg_color=color)
 
 
 """ enables the user to display the error """
 def see_error(num):
     try:
-        # if Error_List[num + 1][0] is True:
-        #     error = " success!"
-        # else:
-        #     error = " fail!"
-        # error_type = Error_List[num + 1][1]
-
-        error_type = "There is no error number " + str(num) + "\n"
-        error = "This is a test!"
+        if ERROR_LIST[num + 1][0] is True:
+            error = " success!"
+        else:
+            error = " fail!"
+        error_type = ERROR_LIST[num + 1][1]
 
         def close_display():
             error_window.destroy()
-            for i in range(0, len(error_grid)):
-                error_grid[i].state = NORMAL
+            for idx in range(0, len(error_grid)):
+                error_grid[idx].state = NORMAL
 
         error_window = ctk.CTkToplevel()
         error_window.geometry("350x150")
@@ -632,5 +653,5 @@ def see_error(num):
                                    text=error_type + error)
         error_label.pack(side=TOP, fill=BOTH, expand=True)
 
-    except NameError:
-        print("excepted")
+    except IndexError:
+        print("No Error Data to Display!")
