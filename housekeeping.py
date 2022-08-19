@@ -146,19 +146,19 @@ def update_housekeeping(housekeeping_packet):
     COIL1_AMP.append(int.from_bytes(housekeeping_packet[52:54], "little") * (3.3 / 4095) * 5)
 
     COIL1_OFFSET.popleft()
-    COIL1_OFFSET.append(int.from_bytes(housekeeping_packet[54:56], "little") * ((3.3 / 4095) - 1.65) * 5)
+    COIL1_OFFSET.append(((int.from_bytes(housekeeping_packet[54:56], "little") * 3.3 / 4095) - 1.65) * 5)
 
     COIL2_AMP.popleft()
     COIL2_AMP.append(int.from_bytes(housekeeping_packet[56:58], "little") * (3.3 / 4095) * 5)
 
     COIL2_OFFSET.popleft()
-    COIL2_OFFSET.append(int.from_bytes(housekeeping_packet[58:60], "little") * ((3.3 / 4095) - 1.65) * 5)
+    COIL2_OFFSET.append(((int.from_bytes(housekeeping_packet[58:60], "little") * 3.3 / 4095) - 1.65) * 5)
 
     COIL3_AMP.popleft()
     COIL3_AMP.append(int.from_bytes(housekeeping_packet[60:62], "little") * (3.3 / 4095) * 5)
 
     COIL3_OFFSET.popleft()
-    COIL3_OFFSET.append(int.from_bytes(housekeeping_packet[62:64], "little") * ((3.3 / 4095) - 1.65) * 5)
+    COIL3_OFFSET.append(((int.from_bytes(housekeeping_packet[62:64], "little") * 3.3 / 4095) - 1.65) * 5)
 
     VRUM_TEMP_1.popleft()
     VRUM_TEMP_1.append((int.from_bytes(housekeeping_packet[64:66], "little") * 0.282) - 577.7)
@@ -178,10 +178,16 @@ def update_housekeeping(housekeeping_packet):
     # ================= Error Flags ================= #
 
     ERROR_REGISTER_0.popleft()
-    ERROR_REGISTER_0.append(int.from_bytes(housekeeping_packet[72:76], "little"))
+    ERROR_REGISTER_0.append("{:08b}".format(int(housekeeping_packet[75:76].hex(), 16)) +
+                            "{:08b}".format(int(housekeeping_packet[74:75].hex(), 16)) +
+                            "{:08b}".format(int(housekeeping_packet[73:74].hex(), 16)) +
+                            "{:08b}".format(int(housekeeping_packet[72:73].hex(), 16)))
 
     ERROR_REGISTER_1.popleft()
-    ERROR_REGISTER_1.append(int.from_bytes(housekeeping_packet[72:76], "little"))
+    ERROR_REGISTER_1.append("{:08b}".format(int(housekeeping_packet[79:80].hex(), 16)) +
+                            "{:08b}".format(int(housekeeping_packet[78:79].hex(), 16)) +
+                            "{:08b}".format(int(housekeeping_packet[77:78].hex(), 16)) +
+                            "{:08b}".format(int(housekeeping_packet[76:77].hex(), 16)))
 
     # self.safety_check(Voltage_List, Current_List, Temperature_List)
 
@@ -198,7 +204,7 @@ def plot_housekeeping(Voltage_List, Current_List, Temperature_List, Offset_List,
         elif 11 <= i < 15:
             rescale_plots(Temperature_List, i - 11, 3)
         else:
-            rescale_plots(Offset_List, i, 4)
+            rescale_plots(Offset_List,  i - 15, 4)
             rescale_plots(Amplitude_List, i - 15, 5)
 
         fig[i].tight_layout()
@@ -214,17 +220,17 @@ def rescale_plots(List, idx, limits):
     match limits:
         case 1:  # voltage limits
             if max(List[idx]) > voltage_limits[idx][1]:
-                max_limit = max(List) * 1.05
+                max_limit = max(List[idx]) * 1.05
                 min_limit = voltage_limits[idx][0]
 
             elif min(List[idx]) < voltage_limits[idx][0]:
-                min_limit = min(List) * 0.95
+                min_limit = min(List[idx]) * 0.95
                 max_limit = voltage_limits[idx][1]
 
             elif (max(List[idx]) - min(List[idx]) * 2) < (voltage_limits[idx][1] - voltage_limits[idx][0]) \
-                    and max(List[idx]) != 0 and min(List[idx]) != 0:
-                max_limit = max(List) * 1.05
-                min_limit = min(List) * 0.95
+                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
+                max_limit = max(List[idx]) * 1.05
+                min_limit = min(List[idx]) * 0.95
 
             else:
                 min_limit = voltage_limits[idx][0]
@@ -243,17 +249,17 @@ def rescale_plots(List, idx, limits):
 
         case 2:  # current limits
             if max(List[idx]) > current_limits[idx][1]:
-                max_limit = max(List) * 1.05
+                max_limit = max(List[idx]) * 1.09
                 min_limit = current_limits[idx][0]
 
             elif min(List[idx]) < current_limits[idx][0]:
-                min_limit = min(List) * 0.95
+                min_limit = min(List[idx]) * 0.91
                 max_limit = current_limits[idx][1]
 
             elif (max(List[idx]) - min(List[idx]) * 2) < (current_limits[idx][1] - current_limits[idx][0]) \
-                    and max(List[idx]) != 0 and min(List[idx]) != 0:
-                max_limit = max(List) * 1.05
-                min_limit = min(List) * 0.95
+                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
+                max_limit = max(List[idx]) * 1.09
+                min_limit = min(List[idx]) * 0.91
 
             else:
                 min_limit = current_limits[idx][0]
@@ -280,7 +286,7 @@ def rescale_plots(List, idx, limits):
                 max_limit = temp_limits[idx][1]
 
             elif (max(List[idx]) - min(List[idx]) * 2) < (temp_limits[idx][1] - temp_limits[idx][0]) \
-                    and max(List[idx]) != 0 and min(List[idx]) != 0:
+                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
                 max_limit = max(List[idx]) * 1.05
                 min_limit = min(List[idx]) * 0.95
 
@@ -297,21 +303,21 @@ def rescale_plots(List, idx, limits):
             else:
                 fig[idx + 11].canvas.restore_region(axes_background[idx + 11])
                 artist_1[idx + 11].set_xdata(HK_x_values)
-                artist_1[idx + 11].set_ydata(List[idx + 11])
+                artist_1[idx + 11].set_ydata(List[idx])
 
         case 4:  # offset limits
             if max(List[idx]) > offset_limits[idx][1]:
-                max_limit = max(List) * 1.05
+                max_limit = max(List[idx]) * 1.05
                 min_limit = offset_limits[idx][0]
 
             elif min(List[idx]) < offset_limits[idx][0]:
-                min_limit = min(List) * 0.95
+                min_limit = min(List[idx]) * 0.95
                 max_limit = offset_limits[idx][1]
 
             elif (max(List[idx]) - min(List[idx]) * 2) < (offset_limits[idx][1] - offset_limits[idx][0]) \
-                    and max(List[idx]) != 0 and min(List[idx]) != 0:
-                max_limit = max(List) * 1.05
-                min_limit = min(List) * 0.95
+                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
+                max_limit = max(List[idx]) * 1.05
+                min_limit = min(List[idx]) * 0.95
 
             else:
                 min_limit = offset_limits[idx][0]
@@ -330,17 +336,17 @@ def rescale_plots(List, idx, limits):
 
         case 5:  # amplitude limits
             if max(List[idx]) > amplitude_limits[idx][1]:
-                max_limit = max(List) * 1.05
+                max_limit = max(List[idx]) * 1.05
                 min_limit = amplitude_limits[idx][0]
 
             elif min(List[idx]) < amplitude_limits[idx][0]:
-                min_limit = min(List) * 0.95
+                min_limit = min(List[idx]) * 0.95
                 max_limit = amplitude_limits[idx][1]
 
             elif (max(List[idx]) - min(List[idx]) * 2) < (amplitude_limits[idx][1] - amplitude_limits[idx][0]) \
-                    and max(List[idx]) != 0 and min(List[idx]) != 0:
-                max_limit = max(List) * 1.05
-                min_limit = min(List) * 0.95
+                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
+                max_limit = max(List[idx]) * 1.05
+                min_limit = min(List[idx]) * 0.95
 
             else:
                 min_limit = amplitude_limits[idx][0]
@@ -528,12 +534,12 @@ def save_data():
 """ updates the error list """
 def update_error():
     # Clear the Error List
-    ERROR_LIST = []
-    e0 = bin(ERROR_REGISTER_0[-1])[2:]
-    e1 = bin(ERROR_REGISTER_1[-1])[2:]
+    ERROR_LIST.clear()
+    e0 = ERROR_REGISTER_0[-1]
+    e1 = ERROR_REGISTER_1[-1]
 
     # CDH Comm Task Status
-    match int(e0[:4], 2):
+    match int(e0[-4:], 2):
         case 0:
             CDH_Comm_State = "OK"
         case 1:
@@ -561,52 +567,52 @@ def update_error():
     ERROR_LIST.append(CDH_Comm_State)
 
     # Housekeeping Task Status (HK Sensors Configuration Status)
-    ERROR_LIST.append([e0[4] == "1", "INA No.1 (Digital Board) configuration"])
-    ERROR_LIST.append([e0[5] == "1", "INA No.2 (Digital Board) configuration"])
-    ERROR_LIST.append([e0[6] == "1", "INA (Scalar Board No.1) configuration"])
-    ERROR_LIST.append([e0[7] == "1", "INA (Scalar Board No.2) configuration"])
-    ERROR_LIST.append([e0[8] == "1", "TMP No.1 (Digital Board) configuration"])
-    ERROR_LIST.append([e0[9] == "1", "TMP No.2 (Digital Board) configuration"])
-    ERROR_LIST.append([e0[10] == "1", "TMP (Scalar Board No.2) configuration"])
-    ERROR_LIST.append([e0[11] == "1", "TMP (Scalar Board No.2) configuration"])
+    ERROR_LIST.append([e0[-5] == "1", "INA No.1 (Digital Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-6] == "1", "INA No.2 (Digital Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-7] == "1", "INA (Scalar Board No.1)\nconfiguration"])
+    ERROR_LIST.append([e0[-8] == "1", "INA (Scalar Board No.2)\nconfiguration"])
+    ERROR_LIST.append([e0[-9] == "1", "TMP No.1 (Digital Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-10] == "1", "TMP No.2 (Digital Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-11] == "1", "TMP (Scalar Board No.2)\nconfiguration"])
+    ERROR_LIST.append([e0[-12] == "1", "TMP (Scalar Board No.2)\nconfiguration"])
 
     # Housekeeping Task Status (HK Sensor Poll Status)
-    ERROR_LIST.append([e0[12] == "1", "INA No.1 (Digital Board) polling"])
-    ERROR_LIST.append([e0[13] == "1", "INA No.2 (Digital Board) polling"])
-    ERROR_LIST.append([e0[14] == "1", "INA (Scalar Board No.1) polling"])
-    ERROR_LIST.append([e0[15] == "1", "INA (Scalar Board No.2) polling"])
-    ERROR_LIST.append([e0[16] == "1", "TMP No.1 (Digital Board) polling"])
-    ERROR_LIST.append([e0[17] == "1", "TMP No.2 (Digital Board) polling"])
-    ERROR_LIST.append([e0[18] == "1", "TMP (Scalar Board No.2) polling"])
-    ERROR_LIST.append([e0[19] == "1", "TMP (Scalar Board No.2) polling"])
+    ERROR_LIST.append([e0[-13] == "1", "INA No.1 (Digital Board)\npolling"])
+    ERROR_LIST.append([e0[-14] == "1", "INA No.2 (Digital Board)\npolling"])
+    ERROR_LIST.append([e0[-15] == "1", "INA (Scalar Board No.1)\npolling"])
+    ERROR_LIST.append([e0[-16] == "1", "INA (Scalar Board No.2)\npolling"])
+    ERROR_LIST.append([e0[-17] == "1", "TMP No.1 (Digital Board)\npolling"])
+    ERROR_LIST.append([e0[-18] == "1", "TMP No.2 (Digital Board)\npolling"])
+    ERROR_LIST.append([e0[-19] == "1", "TMP (Scalar Board No.2)\npolling"])
+    ERROR_LIST.append([e0[-20] == "1", "TMP (Scalar Board No.2)\npolling"])
 
     # Coil Control Task Status (Coil Drivers Configuration Status)
-    ERROR_LIST.append([e0[20] == "1", "WaveGen No.1 (Analog Board) configuration"])
-    ERROR_LIST.append([e0[21] == "1", "WaveGen No.2 (Analog Board) configuration"])
-    ERROR_LIST.append([e0[22] == "1", "WaveGen No.3 (Analog Board) configuration"])
-    ERROR_LIST.append([e0[23] == "1", "DigPot No.1 (Analog Board) configuration"])
-    ERROR_LIST.append([e0[24] == "1", "DigPot No.2 (Analog Board) configuration"])
-    ERROR_LIST.append([e0[25] == "1", "DigPot No.3 (Analog Board) configuration"])
+    ERROR_LIST.append([e0[-21] == "1", "WaveGen No.1 (Analog Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-22] == "1", "WaveGen No.2 (Analog Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-23] == "1", "WaveGen No.3 (Analog Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-24] == "1", "DigPot No.1 (Analog Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-25] == "1", "DigPot No.2 (Analog Board)\nconfiguration"])
+    ERROR_LIST.append([e0[-26] == "1", "DigPot No.3 (Analog Board)\nconfiguration"])
 
     # Coil Control Task Status (Coil Drivers Control Status)
-    ERROR_LIST.append([e0[26] == "1", "WaveGen No.1 (Analog Board) control"])
-    ERROR_LIST.append([e0[27] == "1", "WaveGen No.2 (Analog Board) control"])
-    ERROR_LIST.append([e0[28] == "1", "WaveGen No.3 (Analog Board) control"])
-    ERROR_LIST.append([e0[29] == "1", "DigPot No.1 (Analog Board) control"])
-    ERROR_LIST.append([e0[30] == "1", "DigPot No.2 (Analog Board) control"])
-    ERROR_LIST.append([e0[31] == "1", "DigPot No.3 (Analog Board) control"])
+    ERROR_LIST.append([e0[-27] == "1", "WaveGen No.1 (Analog Board)\ncontrol"])
+    ERROR_LIST.append([e0[-28] == "1", "WaveGen No.2 (Analog Board)\ncontrol"])
+    ERROR_LIST.append([e0[-29] == "1", "WaveGen No.3 (Analog Board)\ncontrol"])
+    ERROR_LIST.append([e0[-30] == "1", "DigPot No.1 (Analog Board)\ncontrol"])
+    ERROR_LIST.append([e0[-31] == "1", "DigPot No.2 (Analog Board)\ncontrol"])
+    ERROR_LIST.append([e0[-32] == "1", "DigPot No.3 (Analog Board)\ncontrol"])
 
     # Science Task Status (Science Instruments Configuration Status)
-    ERROR_LIST.append([e1[0] == "1", "Scalar Board No.1 configuration"])
-    ERROR_LIST.append([e1[1] == "1", "Scalar Board No.2 configuration"])
-    ERROR_LIST.append([e1[2] == "1", "Star Tracker No.1 configuration"])
-    ERROR_LIST.append([e1[3] == "1", "Star Tracker No.2 configuration"])
+    ERROR_LIST.append([e1[-1] == "1", "Scalar Board No.1\nconfiguration"])
+    ERROR_LIST.append([e1[-2] == "1", "Scalar Board No.2\nconfiguration"])
+    ERROR_LIST.append([e1[-3] == "1", "Star Tracker No.1\nconfiguration"])
+    ERROR_LIST.append([e1[-4] == "1", "Star Tracker No.2\nconfiguration"])
 
     # Science Task Status (Science Instruments Read Status)
-    ERROR_LIST.append([e1[4] == "1", "Scalar Board No.1 read"])
-    ERROR_LIST.append([e1[5] == "1", "Scalar Board No.2 read"])
-    ERROR_LIST.append([e1[6] == "1", "Star Tracker No.1 read"])
-    ERROR_LIST.append([e1[7] == "1", "Star Tracker No.2 read"])
+    ERROR_LIST.append([e1[-5] == "1", "Scalar Board No.1 read"])
+    ERROR_LIST.append([e1[-6] == "1", "Scalar Board No.2 read"])
+    ERROR_LIST.append([e1[-7] == "1", "Star Tracker No.1 read"])
+    ERROR_LIST.append([e1[-8] == "1", "Star Tracker No.2 read"])
 
     process_error()
 
@@ -624,7 +630,7 @@ def process_error():
             color = "green"
         else:
             color = "darkred"
-        error_grid[i - 1].configure(text=ERROR_LIST[i][1], fg_color=color)
+        error_grid[i].configure(text=ERROR_LIST[i][1], fg_color=color)
 
 
 """ enables the user to display the error """

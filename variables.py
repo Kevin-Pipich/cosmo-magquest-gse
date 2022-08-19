@@ -4,6 +4,7 @@ This module defines and preallocates memory to all variables that are used betwe
 # Organization modules
 from collections import deque
 from numpy import zeros
+from threading import Lock
 
 # -----------------------------------------------DEFINE DEQUE SIZE-----------------------------------------------------#
 
@@ -13,6 +14,7 @@ sci_deque_size = 60  # set science deque size (1 = 1 second of data)
 # --------------------------------------------SERIAL PORT INITIALIZATION-----------------------------------------------#
 
 serial_port = []  # store the serial port
+lock = Lock()  # create a lock for the threads
 
 # ----------------------------------------VOLTAGE AND CURRENT PREALLOCATION--------------------------------------------#
 
@@ -87,7 +89,7 @@ COIL1_AMP = deque(zeros(deque_size))  # Initialize coil 1 calibration amplitude
 COIL1_OFFSET = deque(zeros(deque_size))  # Initialize coil 1 calibration dc offset
 
 """ Coil 2 Offset and Amplitude """
-COIL2_AMP = deque(zeros(deque_size))   # Initialize coil 2 calibration amplitude
+COIL2_AMP = deque(zeros(deque_size))  # Initialize coil 2 calibration amplitude
 COIL2_OFFSET = deque(zeros(deque_size))  # Initialize coil 2 calibration dc offset
 
 """ Coil 3 Offset and Amplitude """
@@ -112,11 +114,11 @@ axes_twins = []  # Right axes for housekeeping plots
 axes_twins_background = []  # Saved background of right housekeeping axes
 
 plot_names = ["+5V Rail Analog Board", "12V Rail Digital Board", "3.3V Rail HK Sensors",
-                      "5VST Rail Star Trackers", "12VS Rail Scalar Boards", "Scalar Board No.1 Ch.1",
-                      "Scalar Board No.1 Ch.2", "Scalar Board No.1 Ch.3", "Scalar Board No.2 Ch.1",
-                      "Scalar Board No.2 Ch.2", "Scalar Board No.2 Ch.3", "Temperature at ±5V Regulator",
-                      "Temperature at 3.3V Regulator", "Temperature at Scalar Board No.1",
-                      "Temperature at Scalar Board No.2", "Coil 1", "Coil 2", "Coil 3"]
+              "5VST Rail Star Trackers", "12VS Rail Scalar Boards", "Scalar Board No.1 Ch.1",
+              "Scalar Board No.1 Ch.2", "Scalar Board No.1 Ch.3", "Scalar Board No.2 Ch.1",
+              "Scalar Board No.2 Ch.2", "Scalar Board No.2 Ch.3", "Temperature at ±5V Regulator",
+              "Temperature at 3.3V Regulator", "Temperature at Scalar Board No.1",
+              "Temperature at Scalar Board No.2", "Coil 1", "Coil 2", "Coil 3"]
 
 artist_1 = []  # Artist for left axes
 artist_2 = []  # Artist for right axes
@@ -136,14 +138,14 @@ artist_3 = []  # Artist for science axes
 
 """ Housekeeping Plots Limits """
 voltage_limits = [[0, 5.5], [0, 12.5], [0, 3.8], [0, 5.5], [0, 12.5], [0, 12.5], [0, 12.5], [0, 12.5],
-                          [0, 12.5], [0, 12.5], [0, 12.5]]
+                  [0, 12.5], [0, 12.5], [0, 12.5]]
 current_limits = [[0, 275], [0, 275], [0, 275], [0, 275], [0, 275], [0, 275], [0, 275], [0, 275], [0, 275],
                   [0, 275], [0, 275]]
 temp_limits = [[0, 35], [0, 35], [0, 35], [0, 35]]
 
 """ Calibration Plots Limits """
-offset_limits = [[0, 30], [0, 30], [0, 30]]
-amplitude_limits = [[0, 30], [0, 30], [0, 30]]
+offset_limits = [[0, 1], [0, 1], [0, 1]]
+amplitude_limits = [[0, 1], [0, 1], [0, 1]]
 
 """ Science Plots Limits """
 magnetometer_limits = [0, 10]
@@ -216,4 +218,3 @@ state_label = []  # magnetometer state label (used in update_state() func)
 write_checkbox = []  # save to file checkbox (used in save_to_file() func)
 points_saved = []  # save to file label (used in save_to_file() func)
 sci_csvwriter = []  # save to file writer that enables the creation of a csv file (used in save_to_file() func)
-

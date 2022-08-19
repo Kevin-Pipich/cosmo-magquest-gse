@@ -376,6 +376,8 @@ class Housekeeping(ctk.CTkFrame):
                                            height=40)
         self.CDH_Comm_State.grid(row=9, column=1, columnspan=2, sticky="ew", padx=5, pady=5)
 
+        error_grid.append(self.CDH_Comm_State)
+
         counter = 0
         for i in range(0, 9):
             for j in range(0, 4):
@@ -383,6 +385,7 @@ class Housekeeping(ctk.CTkFrame):
                                        fg_color="orange",
                                        hover_color="black",
                                        text="Start Up",
+                                       text_font=("Kanit", -10),
                                        command=lambda idx=counter: housekeeping.see_error(idx))
                 button.grid(row=i, column=j, sticky="nsew", padx=5, pady=5)
                 error_grid.append(button)
@@ -449,9 +452,9 @@ class Housekeeping(ctk.CTkFrame):
                         axes[12].plot([], [], color='red')[0],
                         axes[13].plot([], [], color='red')[0],
                         axes[14].plot([], [], color='red')[0],
-                        axes[15].plot([], [], color='red')[0],
-                        axes[16].plot([], [], color='red')[0],
-                        axes[17].plot([], [], color='red')[0]])
+                        axes[15].plot([], [], color='white')[0],
+                        axes[16].plot([], [], color='white')[0],
+                        axes[17].plot([], [], color='white')[0]])
 
         artist_2.extend([axes_twins[0].plot([], [], color='blue')[0],
                         axes_twins[1].plot([], [], color='blue')[0],

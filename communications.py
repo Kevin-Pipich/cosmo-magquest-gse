@@ -75,7 +75,7 @@ def receive_data():
         check.popleft()
         check.append(serial_port[0].read(1))
         if bytes(0).join(check) == byte.SYNC_PATTERN:
-            opcode = serial_port.read(1)
+            opcode = serial_port[0].read(1)
             # find the corresponding op code which will call the necessary function to process the data
             match opcode:
                 case byte.VRUM_HK_OUT_OP:
