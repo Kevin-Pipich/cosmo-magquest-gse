@@ -170,7 +170,7 @@ def stream_science():
     if serial_port[0] is None:
         print("No Connection Established... Data Will Not Be Transmitted or Received!")
     else:
-        match stream_science_checkbox.get():
+        match stream_science_checkbox[0].get():
             case 1:
                 SCIENCE_STREAM_CTRL(serial_port[0], ON)
                 print("Science data now streaming")
