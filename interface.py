@@ -1,17 +1,8 @@
-from tkinter.ttk import Notebook, Style
-import tkinter.messagebox
-
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-from PIL import ImageTk, Image
-
-import customtkinter as ctk
-
-import threading
-
-import sys
-
-""" NEW IMPORTS """
+"""
+This module contains the creation of the GUI. interface.py handles the creation of all objects (plots, buttons, sliders,
+etc.) to be placed within the GUI.
+"""
+# IMPORTED MODULES
 from variables import *
 from byte import *
 import port
@@ -20,6 +11,18 @@ import commands
 import science
 import communications
 import hidden
+# GUI modules
+import customtkinter as ctk
+from tkinter.ttk import Notebook, Style
+import tkinter.messagebox
+# Plot modules
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
+# Image modules
+from PIL import ImageTk, Image
+# System management modules
+import threading
+import sys
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -1150,19 +1153,40 @@ class Science(ctk.CTkFrame):
 
         # ============ frame_right ============
 
-        self.frame_right.rowconfigure(0, weight=1)
-        self.frame_right.rowconfigure(1, weight=50, minsize=500)
-        self.frame_right.columnconfigure(0, weight=1, minsize=350)
-        self.frame_right.columnconfigure(1, weight=50)
+        s = Style()
+        s.theme_use('default')
+        s.layout("TNotebook", [])
+        s.configure('TNotebook', background="#333333")
+        s.configure('TNotebook.Tab', background="#616161")
+        s.map("TNotebook.Tab", background=[("selected", "#395e9c")])
+        s.configure("TNotebook", focuscolor=s.configure(".")["background"])
 
-        self.frame_options = ctk.CTkFrame(master=self.frame_right)
+        tabControl = Notebook(self.frame_right)
+
+        self.frame_right.rowconfigure(0, weight=1)
+        self.frame_right.columnconfigure(0, weight=1)
+
+        self.magnetometer_frame = ctk.CTkFrame(master=tabControl)
+        tabControl.add(self.magnetometer_frame, text="Magnetometer Data/State")
+
+        self.magnetometer_frame.rowconfigure(0, weight=1)
+        self.magnetometer_frame.rowconfigure(1, weight=50, minsize=500)
+        self.magnetometer_frame.columnconfigure(0, weight=1, minsize=350)
+        self.magnetometer_frame.columnconfigure(1, weight=50)
+
+        self.frame_options = ctk.CTkFrame(master=self.magnetometer_frame)
         self.frame_options.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
 
-        self.frame_sci_plot = ctk.CTkFrame(master=self.frame_right)
+        self.frame_sci_plot = ctk.CTkFrame(master=self.magnetometer_frame)
         self.frame_sci_plot.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=20, pady=20)
 
-        self.frame_state = ctk.CTkFrame(master=self.frame_right)
+        self.frame_state = ctk.CTkFrame(master=self.magnetometer_frame)
         self.frame_state.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
+
+        self.star_tracker_frame = ctk.CTkFrame(master=tabControl)
+        tabControl.add(self.star_tracker_frame, text="Star Tracker Data")
+
+        tabControl.grid(row=0, column=0, sticky="nsew")
 
         # ============ frame_options ============
 
