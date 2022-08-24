@@ -932,11 +932,11 @@ class Commands(ctk.CTkFrame):
         self.current_freq_2.grid(row=4, column=0, columnspan=2, sticky="ew")
 
         self.amp_2_bar = ctk.CTkProgressBar(master=self.Current_Config_frame_1, height=20)
-        self.amp_2_bar.set(1)
+        self.amp_2_bar.set(0.88)
         self.amp_2_bar.grid(row=5, column=0)
 
         self.current_amp_2 = ctk.CTkLabel(master=self.Current_Config_frame_1,
-                                          text="100%",
+                                          text="88%",
                                           text_font=("Kanit", 20, "bold"),
                                           height=10)
         self.current_amp_2.grid(row=5, column=1, sticky="ew")
@@ -957,11 +957,11 @@ class Commands(ctk.CTkFrame):
         self.current_freq_3.grid(row=7, column=0, columnspan=2, sticky="ew")
 
         self.amp_3_bar = ctk.CTkProgressBar(master=self.Current_Config_frame_1, height=20)
-        self.amp_3_bar.set(1)
+        self.amp_3_bar.set(0.89)
         self.amp_3_bar.grid(row=8, column=0)
 
         self.current_amp_3 = ctk.CTkLabel(master=self.Current_Config_frame_1,
-                                          text="100%",
+                                          text="89%",
                                           text_font=("Kanit", 20, "bold"),
                                           height=10)
         self.current_amp_3.grid(row=8, column=1, sticky="ew")
@@ -1312,24 +1312,28 @@ class Science(ctk.CTkFrame):
 
         self.figure_4 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_4 = self.figure_4.add_subplot(111)
+        self.ax_4_twin = self.ax_4.twinx()
         self.canvas_4 = FigureCanvasTkAgg(self.figure_4, master=self.frame_quaternion_plots)
         self.canvas_4.draw()
         self.canvas_4.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=15, pady=15)
 
         self.figure_5 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_5 = self.figure_5.add_subplot(111)
+        self.ax_5_twin = self.ax_5.twinx()
         self.canvas_5 = FigureCanvasTkAgg(self.figure_5, master=self.frame_quaternion_plots)
         self.canvas_5.draw()
         self.canvas_5.get_tk_widget().grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
 
         self.figure_6 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_6 = self.figure_6.add_subplot(111)
+        self.ax_6_twin = self.ax_6.twinx()
         self.canvas_6 = FigureCanvasTkAgg(self.figure_6, master=self.frame_quaternion_plots)
         self.canvas_6.draw()
         self.canvas_6.get_tk_widget().grid(row=1, column=2, sticky="nsew", padx=15, pady=15)
 
         self.figure_7 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_7 = self.figure_7.add_subplot(111)
+        self.ax_7_twin = self.ax_7.twinx()
         self.canvas_7 = FigureCanvasTkAgg(self.figure_7, master=self.frame_quaternion_plots)
         self.canvas_7.draw()
         self.canvas_7.get_tk_widget().grid(row=1, column=3, sticky="nsew", padx=15, pady=15)
@@ -1383,6 +1387,7 @@ class Science(ctk.CTkFrame):
 
         tracker_fig.extend([self.figure_4, self.figure_5, self.figure_6, self.figure_7])
         tracker_axes.extend([self.ax_4, self.ax_5, self.ax_6, self.ax_7])
+        tracker_axes_twins.extend([self.ax_4_twin, self.ax_5_twin, self.ax_6_twin, self.ax_7_twin])
 
         for i in range(0, len(sci_axes)):
             sci_axes[i].patch.set_color("black")
@@ -1409,6 +1414,7 @@ class Science(ctk.CTkFrame):
 
             tracker_fig[i].tight_layout()
             tracker_axes_background.append(tracker_fig[i].canvas.copy_from_bbox(tracker_axes[i].bbox))
+            tracker_axes_twins_background.append(tracker_fig[i].canvas.copy_from_bbox(tracker_axes_twins[i].bbox))
 
         artist_3.extend([sci_axes[0].plot([], [], color='blue')[0],
                         sci_axes[1].plot([], [], color='blue')[0]])
@@ -1416,7 +1422,11 @@ class Science(ctk.CTkFrame):
         artist_4.extend([tracker_axes[0].plot([], [], color='blue')[0],
                          tracker_axes[1].plot([], [], color='blue')[0],
                          tracker_axes[2].plot([], [], color='blue')[0],
-                         tracker_axes[3].plot([], [], color='blue')[0]])
+                         tracker_axes[3].plot([], [], color='blue')[0],
+                         tracker_axes_twins[0].plot([], [], color='white')[0],
+                         tracker_axes_twins[1].plot([], [], color='white')[0],
+                         tracker_axes_twins[2].plot([], [], color='white')[0],
+                         tracker_axes_twins[3].plot([], [], color='white')[0]])
 
 
 if __name__ == "__main__":

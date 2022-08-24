@@ -115,9 +115,9 @@ def update_config(config):
 
     current_scalar_baud_rate[0].configure(text=baud)
 
-    amplitude_bars[0].set(int(current_amplitudes[0].text[:-1]) / 127)
-    amplitude_bars[1].set(int(current_amplitudes[1].text[:-1]) / 127)
-    amplitude_bars[2].set(int(current_amplitudes[2].text[:-1]) / 127)
+    amplitude_bars[0].set(int(current_amplitudes[0].text[:-1]) / 100)
+    amplitude_bars[1].set(int(current_amplitudes[1].text[:-1]) / 100)
+    amplitude_bars[2].set(int(current_amplitudes[2].text[:-1]) / 100)
 
 
 """ restores the configuration to the default """
