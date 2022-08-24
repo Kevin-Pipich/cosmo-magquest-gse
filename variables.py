@@ -123,21 +123,26 @@ plot_names = ["+5V Rail Analog Board", "12V Rail Digital Board", "3.3V Rail HK S
 artist_1 = []  # Artist for left axes
 artist_2 = []  # Artist for right axes
 
-""" Science Page Plots """
+""" Science Plots """
 sci_fig = []  # All science figures
 
 sci_axes = []  # All science axes
 sci_axes_background = []  # Saved background of science plots
 
-tracker_fig = []  # All star tracker figures
-
-tracker_axes = []  # All star tracker axes
-tracker_axes_background = []  # Saved background of tracker plots
-
 sci_plot_names = ["Magnetometer Data Time Domain", "Magnetometer Data Frequency Domain",
                   "Magnetometer Spectrogram"]
 
 artist_3 = []  # Artist for science axes
+
+""" NST Plots """
+tracker_fig = []  # All star tracker figures
+
+tracker_axes = []  # NST 1 axes
+tracker_axes_background = []  # Saved background of NST 1 plots
+
+tracker_axes_twins = []  # NST 2 axes
+tracker_axes_twins_background = []  # Saved background of NST 2 plots
+
 artist_4 = []  # Artist for star tracker axes
 
 # ---------------------------------------------SCALE LIMITS VARIABLES--------------------------------------------------#
@@ -156,6 +161,10 @@ amplitude_limits = [[0, 1], [0, 1], [0, 1]]
 """ Science Plots Limits """
 magnetometer_limits = [0, 10]
 fft_limits = [0, 10]
+
+""" Star Tracker Plots Limits """
+NST1_limits = [[0, 1], [0, 1], [0, 1], [0, 1]]
+NST2_limits = [[0, 1], [0, 1], [0, 1], [0, 1]]
 
 # ------------------------------------------------ERROR VARIABLES------------------------------------------------------#
 

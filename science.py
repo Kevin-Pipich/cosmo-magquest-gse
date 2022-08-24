@@ -244,6 +244,50 @@ def plot_science():
     sci_axes[2].set_title("Magnetometer Spectrogram")
 
 
+""" updates the attitude plots live in time domain """
+def plot_attitude():
+    # NST_1[-1][6][0]
+    # NST_2[-1][6][0]
+    pass
+
+
+""" rescale the plots when max or min values extend beyond the limits """
+def rescale_plots(List, limits, artist, figure, axis, background):
+    if max(List) > limits[1]:
+        max_limit = max(List) * 1.05
+        min_limit = limits[0]
+
+    elif min(List) < limits[0]:
+        min_limit = min(List) * 0.95
+        max_limit = limits[1]
+
+    elif (max(List) - min(List) * 2) < (limits[1] - limits[0]) \
+            and (max(List) != 0 or min(List) != 0):
+        max_limit = max(List) * 1.05
+        min_limit = min(List) * 0.95
+
+    else:
+        min_limit = limits[0]
+        max_limit = limits[1]
+
+    if min_limit != limits[0] or max_limit != limits[1]:
+        limits = [min_limit, max_limit]
+        axis.set_ylim(limits)
+        background = figure.canvas.copy_from_bbox(axis.bbox)
+
+    if max(List) == 0 and min(List) == 0:
+        figure.canvas.restore_region(background)
+    else:
+        figure.canvas.restore_region(background)
+        artist.set_xdata(Science_Time)
+        artist.set_ydata(List)
+
+
+""" updates the labels for the attitude quality """
+def update_quality():
+    pass
+
+
 """ updates the magnetometer state live """
 def update_state():
     match Magnetometer_Status[-1]:
