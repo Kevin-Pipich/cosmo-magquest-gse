@@ -129,10 +129,16 @@ sci_fig = []  # All science figures
 sci_axes = []  # All science axes
 sci_axes_background = []  # Saved background of science plots
 
+tracker_fig = []  # All star tracker figures
+
+tracker_axes = []  # All star tracker axes
+tracker_axes_background = []  # Saved background of tracker plots
+
 sci_plot_names = ["Magnetometer Data Time Domain", "Magnetometer Data Frequency Domain",
                   "Magnetometer Spectrogram"]
 
 artist_3 = []  # Artist for science axes
+artist_4 = []  # Artist for star tracker axes
 
 # ---------------------------------------------SCALE LIMITS VARIABLES--------------------------------------------------#
 
@@ -153,11 +159,14 @@ fft_limits = [0, 10]
 
 # ------------------------------------------------ERROR VARIABLES------------------------------------------------------#
 
-""" Error Flags """
+""" General Error Flags """
 ERROR_REGISTER_0 = deque(zeros(deque_size))
 ERROR_REGISTER_1 = deque(zeros(deque_size))
 
 ERROR_LIST = []
+
+""" Attitude Quality Error Flags """
+Attitude_Quality = []
 
 # ---------------------------------------SCIENCE DATA/STATE PREALLOCATION----------------------------------------------#
 

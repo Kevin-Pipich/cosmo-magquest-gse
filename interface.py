@@ -1186,8 +1186,18 @@ class Science(ctk.CTkFrame):
         self.star_tracker_frame = ctk.CTkFrame(master=tabControl)
         tabControl.add(self.star_tracker_frame, text="Star Tracker Data")
 
+        self.star_tracker_frame.rowconfigure((0, 1), weight=1)
+        self.star_tracker_frame.columnconfigure(0, weight=1)
+
+        self.frame_quaternion_plots = ctk.CTkFrame(master=self.star_tracker_frame)
+        self.frame_quaternion_plots.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
+
+        self.frame_attitude_quality = ctk.CTkFrame(master=self.star_tracker_frame)
+        self.frame_attitude_quality.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+
         tabControl.grid(row=0, column=0, sticky="nsew")
 
+        """ Magnetometer Frame of Tab Control """
         # ============ frame_options ============
 
         self.frame_options.rowconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
@@ -1286,10 +1296,93 @@ class Science(ctk.CTkFrame):
                                         height=50)
         self.state_label.grid(row=1, column=1)
 
+        """ Star Tracker Frame of Tab Control """
+        # ============ frame_quaternion_plot ============
+
+        self.frame_quaternion_plots.rowconfigure(0, weight=1)
+        self.frame_quaternion_plots.rowconfigure(1, weight=1)
+        self.frame_quaternion_plots.columnconfigure((0, 1, 2, 3), weight=1)
+
+        self.attitude_plot_label = ctk.CTkLabel(master=self.frame_quaternion_plots,
+                                                text="Attitude Quaternion Plots",
+                                                height=25,
+                                                fg_color=("white", "gray38"),
+                                                corner_radius=8)
+        self.attitude_plot_label.grid(row=0, column=0, columnspan=4, sticky="ew", padx=20)
+
+        self.figure_4 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
+        self.ax_4 = self.figure_4.add_subplot(111)
+        self.canvas_4 = FigureCanvasTkAgg(self.figure_4, master=self.frame_quaternion_plots)
+        self.canvas_4.draw()
+        self.canvas_4.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=15, pady=15)
+
+        self.figure_5 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
+        self.ax_5 = self.figure_5.add_subplot(111)
+        self.canvas_5 = FigureCanvasTkAgg(self.figure_5, master=self.frame_quaternion_plots)
+        self.canvas_5.draw()
+        self.canvas_5.get_tk_widget().grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
+
+        self.figure_6 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
+        self.ax_6 = self.figure_6.add_subplot(111)
+        self.canvas_6 = FigureCanvasTkAgg(self.figure_6, master=self.frame_quaternion_plots)
+        self.canvas_6.draw()
+        self.canvas_6.get_tk_widget().grid(row=1, column=2, sticky="nsew", padx=15, pady=15)
+
+        self.figure_7 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
+        self.ax_7 = self.figure_7.add_subplot(111)
+        self.canvas_7 = FigureCanvasTkAgg(self.figure_7, master=self.frame_quaternion_plots)
+        self.canvas_7.draw()
+        self.canvas_7.get_tk_widget().grid(row=1, column=3, sticky="nsew", padx=15, pady=15)
+
+        # ============ frame_attitude_quality ============
+
+        self.frame_attitude_quality.rowconfigure((0, 1), weight=1)
+        self.frame_attitude_quality.columnconfigure((0, 1, 2, 3), weight=1)
+
+        self.quality_flag_labels = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                                text="Attitude Quality Flags",
+                                                height=25,
+                                                fg_color=("white", "gray38"),
+                                                corner_radius=8)
+        self.quality_flag_labels.grid(row=0, column=0, columnspan=4, sticky="ew", padx=20)
+
+        self.op_mode = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                    text="Operational Mode:\nStart Up",
+                                    height=25,
+                                    fg_color=("white", "gray38"),
+                                    corner_radius=8)
+        self.op_mode.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+
+        self.star_id = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                    text="StarID Step:\nStart Up",
+                                    height=25,
+                                    fg_color=("white", "gray38"),
+                                    corner_radius=8)
+        self.star_id.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+
+        self.attitude_status = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                            text="Attitude Status:\nStart Up",
+                                            height=25,
+                                            fg_color=("white", "gray38"),
+                                            corner_radius=8)
+        self.attitude_status.grid(row=1, column=2, sticky="nsew", padx=20, pady=20)
+
+        self.rate_est_status = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                            text="Rate Est Status:\nStart Up",
+                                            height=25,
+                                            fg_color=("white", "gray38"),
+                                            corner_radius=8)
+        self.rate_est_status.grid(row=1, column=3, sticky="nsew", padx=20, pady=20)
+
+        Attitude_Quality.extend([self.op_mode, self.star_id, self.attitude_status, self.rate_est_status])
+
         # =========== Save all figures to be updated ===========
 
         sci_fig.extend([self.figure_1, self.figure_2, self.figure_3])
         sci_axes.extend([self.ax_1, self.ax_2, self.ax_3])
+
+        tracker_fig.extend([self.figure_4, self.figure_5, self.figure_6, self.figure_7])
+        tracker_axes.extend([self.ax_4, self.ax_5, self.ax_6, self.ax_7])
 
         for i in range(0, len(sci_axes)):
             sci_axes[i].patch.set_color("black")
@@ -1307,8 +1400,23 @@ class Science(ctk.CTkFrame):
             sci_fig[i].tight_layout()
             sci_axes_background.append(sci_fig[i].canvas.copy_from_bbox(sci_axes[i].bbox))
 
+        for i in range(0, len(tracker_axes)):
+            tracker_axes[i].patch.set_color("black")
+            tracker_fig[i].set_facecolor("dimgrey")
+
+            tracker_axes[i].set_xlabel("Time [s]")
+            tracker_axes[i].set_ylabel("β" + str(i))
+
+            tracker_fig[i].tight_layout()
+            tracker_axes_background.append(tracker_fig[i].canvas.copy_from_bbox(tracker_axes[i].bbox))
+
         artist_3.extend([sci_axes[0].plot([], [], color='blue')[0],
                         sci_axes[1].plot([], [], color='blue')[0]])
+
+        artist_4.extend([tracker_axes[0].plot([], [], color='blue')[0],
+                         tracker_axes[1].plot([], [], color='blue')[0],
+                         tracker_axes[2].plot([], [], color='blue')[0],
+                         tracker_axes[3].plot([], [], color='blue')[0]])
 
 
 if __name__ == "__main__":
