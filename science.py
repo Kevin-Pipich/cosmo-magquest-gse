@@ -254,9 +254,9 @@ def plot_attitude():
 
     for idx in range(0, 4):
         rescale_plots(quaternions_NST1[idx::4], NST1_limits[idx], artist_4[idx], tracker_fig[idx], tracker_axes[idx],
-                      tracker_axes_background[idx])
+                      tracker_axes_background[idx], 1.05, 0.95)
         rescale_plots(quaternions_NST2[idx::4], NST2_limits[idx], artist_4[idx+4], tracker_fig[idx],
-                      tracker_axes_twins[idx], tracker_axes_twins_background[idx])
+                      tracker_axes_twins[idx], tracker_axes_twins_background[idx], 1.10, 0.90)
 
         tracker_fig[idx].tight_layout()
         tracker_fig[idx].canvas.draw()
@@ -264,19 +264,19 @@ def plot_attitude():
 
 
 """ rescale the plots when max or min values extend beyond the limits """
-def rescale_plots(List, limits, artist, figure, axis, background):
+def rescale_plots(List, limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
     if max(List) > limits[1]:
-        max_limit = max(List) * 1.05
+        max_limit = max(List) * upper_tolerance
         min_limit = limits[0]
 
     elif min(List) < limits[0]:
-        min_limit = min(List) * 0.95
+        min_limit = min(List) * lower_tolerance
         max_limit = limits[1]
 
     elif (max(List) - min(List) * 2) < (limits[1] - limits[0]) \
             and (max(List) != 0 or min(List) != 0):
-        max_limit = max(List) * 1.05
-        min_limit = min(List) * 0.95
+        max_limit = max(List) * upper_tolerance
+        min_limit = min(List) * lower_tolerance
 
     else:
         min_limit = limits[0]
@@ -291,7 +291,7 @@ def rescale_plots(List, limits, artist, figure, axis, background):
         figure.canvas.restore_region(background)
     else:
         figure.canvas.restore_region(background)
-        artist.set_xdata(Science_Time)
+        artist.set_xdata(HK_x_values)
         artist.set_ydata(List)
 
 

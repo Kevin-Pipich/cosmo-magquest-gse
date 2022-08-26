@@ -199,15 +199,18 @@ def plot_housekeeping(Voltage_List, Current_List, Temperature_List, Offset_List,
     # Updates all the figures which were already created
     for i in range(0, len(fig)):
         if i < 11:
-            rescale_plots_new(Voltage_List[i], voltage_limits[i], artist_1[i], fig[i], axes[i], axes_background[i])
-            rescale_plots_new(Current_List[i], current_limits[i], artist_2[i], fig[i], axes_twins[i],
-                              axes_twins_background[i])
+            rescale_plots(Voltage_List[i], voltage_limits[i], artist_1[i], fig[i], axes[i], axes_background[i],
+                          1.05, 0.95)
+            rescale_plots(Current_List[i], current_limits[i], artist_2[i], fig[i], axes_twins[i],
+                          axes_twins_background[i], 1.10, 0.90)
         elif 11 <= i < 15:
-            rescale_plots_new(Temperature_List[i], temp_limits[i], artist_1[i], fig[i], axes[i], axes_background[i])
+            rescale_plots(Temperature_List[i - 11], temp_limits[i - 11], artist_1[i], fig[i], axes[i],
+                          axes_background[i], 1.10, 0.90)
         else:
-            rescale_plots_new(Offset_List[i], offset_limits[i], artist_1[i], fig[i], axes[i], axes_background[i])
-            rescale_plots_new(Amplitude_List[i], amplitude_limits[i], artist_2[i], fig[i], axes_twins[i],
-                              axes_twins_background[i])
+            rescale_plots(Offset_List[i - 15], offset_limits[i - 15], artist_1[i], fig[i], axes[i], axes_background[i],
+                          1.05, 0.95)
+            rescale_plots(Amplitude_List[i - 15], amplitude_limits[i - 15], artist_2[i - 4], fig[i], axes_twins[i - 4],
+                          axes_twins_background[i - 4], 1.10, 0.90)
 
         fig[i].tight_layout()
         fig[i].canvas.draw()
@@ -218,19 +221,19 @@ def plot_housekeeping(Voltage_List, Current_List, Temperature_List, Offset_List,
 
 
 """ rescale the plots when max or min values extend beyond the limits """
-def rescale_plots_new(List, limits, artist, figure, axis, background):
+def rescale_plots(List, limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
     if max(List) > limits[1]:
-        max_limit = max(List) * 1.05
+        max_limit = max(List) * upper_tolerance
         min_limit = limits[0]
 
     elif min(List) < limits[0]:
-        min_limit = min(List) * 0.95
+        min_limit = min(List) * lower_tolerance
         max_limit = limits[1]
 
     elif (max(List) - min(List) * 2) < (limits[1] - limits[0]) \
             and (max(List) != 0 or min(List) != 0):
-        max_limit = max(List) * 1.05
-        min_limit = min(List) * 0.95
+        max_limit = max(List) * upper_tolerance
+        min_limit = min(List) * lower_tolerance
 
     else:
         min_limit = limits[0]
@@ -247,155 +250,6 @@ def rescale_plots_new(List, limits, artist, figure, axis, background):
         figure.canvas.restore_region(background)
         artist.set_xdata(HK_x_values)
         artist.set_ydata(List)
-
-
-""" rescale the plots when max or min values extend beyond the limits """
-def rescale_plots(List, idx, limits):
-    match limits:
-        case 1:  # voltage limits
-            if max(List[idx]) > voltage_limits[idx][1]:
-                max_limit = max(List[idx]) * 1.05
-                min_limit = voltage_limits[idx][0]
-
-            elif min(List[idx]) < voltage_limits[idx][0]:
-                min_limit = min(List[idx]) * 0.95
-                max_limit = voltage_limits[idx][1]
-
-            elif (max(List[idx]) - min(List[idx]) * 2) < (voltage_limits[idx][1] - voltage_limits[idx][0]) \
-                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
-                max_limit = max(List[idx]) * 1.05
-                min_limit = min(List[idx]) * 0.95
-
-            else:
-                min_limit = voltage_limits[idx][0]
-                max_limit = voltage_limits[idx][1]
-
-            voltage_limits[idx] = [min_limit, max_limit]
-            axes[idx].set_ylim(voltage_limits[idx])
-            axes_background[idx] = fig[idx].canvas.copy_from_bbox(axes[idx].bbox)
-
-            if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx].canvas.restore_region(axes_background[idx])
-            else:
-                fig[idx].canvas.restore_region(axes_background[idx])
-                artist_1[idx].set_xdata(HK_x_values)
-                artist_1[idx].set_ydata(List[idx])
-
-        case 2:  # current limits
-            if max(List[idx]) > current_limits[idx][1]:
-                max_limit = max(List[idx]) * 1.09
-                min_limit = current_limits[idx][0]
-
-            elif min(List[idx]) < current_limits[idx][0]:
-                min_limit = min(List[idx]) * 0.91
-                max_limit = current_limits[idx][1]
-
-            elif (max(List[idx]) - min(List[idx]) * 2) < (current_limits[idx][1] - current_limits[idx][0]) \
-                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
-                max_limit = max(List[idx]) * 1.09
-                min_limit = min(List[idx]) * 0.91
-
-            else:
-                min_limit = current_limits[idx][0]
-                max_limit = current_limits[idx][1]
-
-            current_limits[idx] = [min_limit, max_limit]
-            axes_twins[idx].set_ylim(current_limits[idx])
-            axes_twins_background[idx] = fig[idx].canvas.copy_from_bbox(axes_twins[idx].bbox)
-
-            if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx].canvas.restore_region(axes_twins_background[idx])
-            else:
-                fig[idx].canvas.restore_region(axes_twins_background[idx])
-                artist_2[idx].set_xdata(HK_x_values)
-                artist_2[idx].set_ydata(List[idx])
-
-        case 3:  # temp limits
-            if max(List[idx]) > temp_limits[idx][1]:
-                max_limit = max(List[idx]) * 1.05
-                min_limit = temp_limits[idx][0]
-
-            elif min(List[idx]) < temp_limits[idx][0]:
-                min_limit = min(List[idx]) * 0.95
-                max_limit = temp_limits[idx][1]
-
-            elif (max(List[idx]) - min(List[idx]) * 2) < (temp_limits[idx][1] - temp_limits[idx][0]) \
-                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
-                max_limit = max(List[idx]) * 1.05
-                min_limit = min(List[idx]) * 0.95
-
-            else:
-                min_limit = temp_limits[idx][0]
-                max_limit = temp_limits[idx][1]
-
-            temp_limits[idx] = [min_limit, max_limit]
-            axes[idx + 11].set_ylim(temp_limits[idx])
-            axes_background[idx + 11] = fig[idx + 11].canvas.copy_from_bbox(axes[idx + 11].bbox)
-
-            if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx + 11].canvas.restore_region(axes_background[idx + 11])
-            else:
-                fig[idx + 11].canvas.restore_region(axes_background[idx + 11])
-                artist_1[idx + 11].set_xdata(HK_x_values)
-                artist_1[idx + 11].set_ydata(List[idx])
-
-        case 4:  # offset limits
-            if max(List[idx]) > offset_limits[idx][1]:
-                max_limit = max(List[idx]) * 1.05
-                min_limit = offset_limits[idx][0]
-
-            elif min(List[idx]) < offset_limits[idx][0]:
-                min_limit = min(List[idx]) * 0.95
-                max_limit = offset_limits[idx][1]
-
-            elif (max(List[idx]) - min(List[idx]) * 2) < (offset_limits[idx][1] - offset_limits[idx][0]) \
-                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
-                max_limit = max(List[idx]) * 1.05
-                min_limit = min(List[idx]) * 0.95
-
-            else:
-                min_limit = offset_limits[idx][0]
-                max_limit = offset_limits[idx][1]
-
-            offset_limits[idx] = [min_limit, max_limit]
-            axes[idx + 15].set_ylim(offset_limits[idx])
-            axes_background[idx + 15] = fig[idx + 15].canvas.copy_from_bbox(axes[idx + 15].bbox)
-
-            if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx + 15].canvas.restore_region(axes_background[idx + 15])
-            else:
-                fig[idx + 15].canvas.restore_region(axes_background[idx + 15])
-                artist_1[idx + 15].set_xdata(HK_x_values)
-                artist_1[idx + 15].set_ydata(List[idx])
-
-        case 5:  # amplitude limits
-            if max(List[idx]) > amplitude_limits[idx][1]:
-                max_limit = max(List[idx]) * 1.05
-                min_limit = amplitude_limits[idx][0]
-
-            elif min(List[idx]) < amplitude_limits[idx][0]:
-                min_limit = min(List[idx]) * 0.95
-                max_limit = amplitude_limits[idx][1]
-
-            elif (max(List[idx]) - min(List[idx]) * 2) < (amplitude_limits[idx][1] - amplitude_limits[idx][0]) \
-                    and (max(List[idx]) != 0 or min(List[idx]) != 0):
-                max_limit = max(List[idx]) * 1.05
-                min_limit = min(List[idx]) * 0.95
-
-            else:
-                min_limit = amplitude_limits[idx][0]
-                max_limit = amplitude_limits[idx][1]
-
-            amplitude_limits[idx] = [min_limit, max_limit]
-            axes_twins[idx + 11].set_ylim(amplitude_limits[idx])
-            axes_twins_background[idx + 11] = fig[idx + 15].canvas.copy_from_bbox(axes_twins[idx + 11].bbox)
-
-            if max(List[idx]) == 0 and min(List[idx]) == 0:
-                fig[idx + 15].canvas.restore_region(axes_twins_background[idx + 11])
-            else:
-                fig[idx + 15].canvas.restore_region(axes_twins_background[idx + 11])
-                artist_2[idx + 11].set_xdata(HK_x_values)
-                artist_2[idx + 11].set_ydata(List[idx])
 
 
 """ creates a new window displaying the live housekeeping data """
@@ -481,25 +335,25 @@ def update_housekeeping_display():
     label1.grid(row=1, column=0)
 
     label2 = ctk.CTkLabel(hk_display_window[0], text="============ Calibration Values ============" + "\n\n"
-                                                  + "Coil 1 Offset: " + str(
+                                                     + "Coil 1 Offset: " + str(
         round(COIL1_OFFSET[-1], 3)) + " mA" + "\n"
                                               "Coil 1 Amplitude: " + str(round(COIL1_AMP[-1], 3)) + " mA" + "\n\n"
-                                                  + "Coil 2 Offset: " + str(
+                                                     + "Coil 2 Offset: " + str(
         round(COIL2_OFFSET[-1], 3)) + " mA" + "\n"
-                                                  + "Coil 2 Amplitude: " + str(
+                                                     + "Coil 2 Amplitude: " + str(
         round(COIL2_AMP[-1], 3)) + " mA" + "\n\n"
-                                                  + "Coil 3 Offset: " + str(
+                                                     + "Coil 3 Offset: " + str(
         round(COIL3_OFFSET[-1], 3)) + " V" + "\n"
-                                                  + "Coil 3 Amplitude: " + str(
+                                                     + "Coil 3 Amplitude: " + str(
         round(COIL3_AMP[-1], 3)) + " mA" + "\n\n"
-                                                  + "========== VRuM Temperatures ==========" + "\n\n"
-                                                  + "VRuM Temperature No.1: " + str(
+                                                     + "========== VRuM Temperatures ==========" + "\n\n"
+                                                     + "VRuM Temperature No.1: " + str(
         round(VRUM_TEMP_1[-1], 3)) + " C" + "\n\n"
-                                                  + "VRuM Temperature No.2: " + str(
+                                                     + "VRuM Temperature No.2: " + str(
         round(VRUM_TEMP_2[-1], 3)) + " C" + "\n\n"
-                                                  + "VRuM Temperature No.3: " + str(
+                                                     + "VRuM Temperature No.3: " + str(
         round(VRUM_TEMP_3[-1], 3)) + " C" + "\n\n"
-                                                  + "VRuM Temperature No.4: " + str(
+                                                     + "VRuM Temperature No.4: " + str(
         round(VRUM_TEMP_4[-1], 3)) + " C" + "\n\n")
     label2.grid(row=1, column=1)
 
