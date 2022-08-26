@@ -441,38 +441,38 @@ class Housekeeping(ctk.CTkFrame):
 
         """ Create artists for updating figure when new data is received """
         artist_1.extend([axes[0].plot([], [], color='white')[0],
-                        axes[1].plot([], [], color='white')[0],
-                        axes[2].plot([], [], color='white')[0],
-                        axes[3].plot([], [], color='white')[0],
-                        axes[4].plot([], [], color='white')[0],
-                        axes[5].plot([], [], color='white')[0],
-                        axes[6].plot([], [], color='white')[0],
-                        axes[7].plot([], [], color='white')[0],
-                        axes[8].plot([], [], color='white')[0],
-                        axes[9].plot([], [], color='white')[0],
-                        axes[10].plot([], [], color='white')[0],
-                        axes[11].plot([], [], color='red')[0],
-                        axes[12].plot([], [], color='red')[0],
-                        axes[13].plot([], [], color='red')[0],
-                        axes[14].plot([], [], color='red')[0],
-                        axes[15].plot([], [], color='white')[0],
-                        axes[16].plot([], [], color='white')[0],
-                        axes[17].plot([], [], color='white')[0]])
+                         axes[1].plot([], [], color='white')[0],
+                         axes[2].plot([], [], color='white')[0],
+                         axes[3].plot([], [], color='white')[0],
+                         axes[4].plot([], [], color='white')[0],
+                         axes[5].plot([], [], color='white')[0],
+                         axes[6].plot([], [], color='white')[0],
+                         axes[7].plot([], [], color='white')[0],
+                         axes[8].plot([], [], color='white')[0],
+                         axes[9].plot([], [], color='white')[0],
+                         axes[10].plot([], [], color='white')[0],
+                         axes[11].plot([], [], color='red')[0],
+                         axes[12].plot([], [], color='red')[0],
+                         axes[13].plot([], [], color='red')[0],
+                         axes[14].plot([], [], color='red')[0],
+                         axes[15].plot([], [], color='white')[0],
+                         axes[16].plot([], [], color='white')[0],
+                         axes[17].plot([], [], color='white')[0]])
 
         artist_2.extend([axes_twins[0].plot([], [], color='blue')[0],
-                        axes_twins[1].plot([], [], color='blue')[0],
-                        axes_twins[2].plot([], [], color='blue')[0],
-                        axes_twins[3].plot([], [], color='blue')[0],
-                        axes_twins[4].plot([], [], color='blue')[0],
-                        axes_twins[5].plot([], [], color='blue')[0],
-                        axes_twins[6].plot([], [], color='blue')[0],
-                        axes_twins[7].plot([], [], color='blue')[0],
-                        axes_twins[8].plot([], [], color='blue')[0],
-                        axes_twins[9].plot([], [], color='blue')[0],
-                        axes_twins[10].plot([], [], color='blue')[0],
-                        axes_twins[11].plot([], [], color='blue')[0],
-                        axes_twins[12].plot([], [], color='blue')[0],
-                        axes_twins[13].plot([], [], color='blue')[0]])
+                         axes_twins[1].plot([], [], color='blue')[0],
+                         axes_twins[2].plot([], [], color='blue')[0],
+                         axes_twins[3].plot([], [], color='blue')[0],
+                         axes_twins[4].plot([], [], color='blue')[0],
+                         axes_twins[5].plot([], [], color='blue')[0],
+                         axes_twins[6].plot([], [], color='blue')[0],
+                         axes_twins[7].plot([], [], color='blue')[0],
+                         axes_twins[8].plot([], [], color='blue')[0],
+                         axes_twins[9].plot([], [], color='blue')[0],
+                         axes_twins[10].plot([], [], color='blue')[0],
+                         axes_twins[11].plot([], [], color='blue')[0],
+                         axes_twins[12].plot([], [], color='blue')[0],
+                         axes_twins[13].plot([], [], color='blue')[0]])
 
 
 class Commands(ctk.CTkFrame):
@@ -1340,45 +1340,81 @@ class Science(ctk.CTkFrame):
 
         # ============ frame_attitude_quality ============
 
-        self.frame_attitude_quality.rowconfigure((0, 1), weight=1)
+        self.frame_attitude_quality.rowconfigure((0, 1, 2), weight=1)
         self.frame_attitude_quality.columnconfigure((0, 1, 2, 3), weight=1)
 
-        self.quality_flag_labels = ctk.CTkLabel(master=self.frame_attitude_quality,
-                                                text="Attitude Quality Flags",
-                                                height=25,
-                                                fg_color=("white", "gray38"),
-                                                corner_radius=8)
-        self.quality_flag_labels.grid(row=0, column=0, columnspan=4, sticky="ew", padx=20)
+        self.quality_flag_NST1 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                              text="NST 1 Quality Flags",
+                                              height=25,
+                                              fg_color=("white", "gray38"),
+                                              corner_radius=8)
+        self.quality_flag_NST1.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20)
 
-        self.op_mode = ctk.CTkLabel(master=self.frame_attitude_quality,
-                                    text="Operational Mode:\nStart Up",
-                                    height=25,
-                                    fg_color=("white", "gray38"),
-                                    corner_radius=8)
-        self.op_mode.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        self.quality_flag_NST2 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                              text="NST 2 Quality Flags",
+                                              height=25,
+                                              fg_color=("white", "gray38"),
+                                              corner_radius=8)
+        self.quality_flag_NST2.grid(row=0, column=2, columnspan=2, sticky="ew", padx=20)
 
-        self.star_id = ctk.CTkLabel(master=self.frame_attitude_quality,
-                                    text="StarID Step:\nStart Up",
-                                    height=25,
-                                    fg_color=("white", "gray38"),
-                                    corner_radius=8)
-        self.star_id.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+        self.op_mode1 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                     text="Operational Mode:\nStart Up",
+                                     height=25,
+                                     fg_color=("white", "orange"),
+                                     corner_radius=8)
+        self.op_mode1.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
 
-        self.attitude_status = ctk.CTkLabel(master=self.frame_attitude_quality,
-                                            text="Attitude Status:\nStart Up",
-                                            height=25,
-                                            fg_color=("white", "gray38"),
-                                            corner_radius=8)
-        self.attitude_status.grid(row=1, column=2, sticky="nsew", padx=20, pady=20)
+        self.star_id1 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                     text="StarID Step:\nStart Up",
+                                     height=25,
+                                     fg_color=("white", "orange"),
+                                     corner_radius=8)
+        self.star_id1.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
 
-        self.rate_est_status = ctk.CTkLabel(master=self.frame_attitude_quality,
-                                            text="Rate Est Status:\nStart Up",
-                                            height=25,
-                                            fg_color=("white", "gray38"),
-                                            corner_radius=8)
-        self.rate_est_status.grid(row=1, column=3, sticky="nsew", padx=20, pady=20)
+        self.attitude_status1 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                             text="Attitude Status:\nStart Up",
+                                             height=25,
+                                             fg_color=("white", "orange"),
+                                             corner_radius=8)
+        self.attitude_status1.grid(row=2, column=0, sticky="nsew", padx=20, pady=20)
 
-        Attitude_Quality.extend([self.op_mode, self.star_id, self.attitude_status, self.rate_est_status])
+        self.rate_est_status1 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                             text="Rate Est Status:\nStart Up",
+                                             height=25,
+                                             fg_color=("white", "orange"),
+                                             corner_radius=8)
+        self.rate_est_status1.grid(row=2, column=1, sticky="nsew", padx=20, pady=20)
+
+        self.op_mode2 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                     text="Operational Mode:\nStart Up",
+                                     height=25,
+                                     fg_color=("white", "orange"),
+                                     corner_radius=8)
+        self.op_mode2.grid(row=1, column=2, sticky="nsew", padx=20, pady=20)
+
+        self.star_id2 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                     text="StarID Step:\nStart Up",
+                                     height=25,
+                                     fg_color=("white", "orange"),
+                                     corner_radius=8)
+        self.star_id2.grid(row=1, column=3, sticky="nsew", padx=20, pady=20)
+
+        self.attitude_status2 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                             text="Attitude Status:\nStart Up",
+                                             height=25,
+                                             fg_color=("white", "orange"),
+                                             corner_radius=8)
+        self.attitude_status2.grid(row=2, column=2, sticky="nsew", padx=20, pady=20)
+
+        self.rate_est_status2 = ctk.CTkLabel(master=self.frame_attitude_quality,
+                                             text="Rate Est Status:\nStart Up",
+                                             height=25,
+                                             fg_color=("white", "orange"),
+                                             corner_radius=8)
+        self.rate_est_status2.grid(row=2, column=3, sticky="nsew", padx=20, pady=20)
+
+        Attitude_Quality_NST1.extend([self.op_mode1, self.star_id1, self.attitude_status1, self.rate_est_status1])
+        Attitude_Quality_NST2.extend([self.op_mode2, self.star_id2, self.attitude_status2, self.rate_est_status2])
 
         # =========== Save all figures to be updated ===========
 
@@ -1417,7 +1453,7 @@ class Science(ctk.CTkFrame):
             tracker_axes_twins_background.append(tracker_fig[i].canvas.copy_from_bbox(tracker_axes_twins[i].bbox))
 
         artist_3.extend([sci_axes[0].plot([], [], color='blue')[0],
-                        sci_axes[1].plot([], [], color='blue')[0]])
+                         sci_axes[1].plot([], [], color='blue')[0]])
 
         artist_4.extend([tracker_axes[0].plot([], [], color='blue')[0],
                          tracker_axes[1].plot([], [], color='blue')[0],

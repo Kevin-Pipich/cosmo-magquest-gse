@@ -175,7 +175,8 @@ ERROR_REGISTER_1 = deque(zeros(deque_size))
 ERROR_LIST = []
 
 """ Attitude Quality Error Flags """
-Attitude_Quality = []
+Attitude_Quality_NST1 = []
+Attitude_Quality_NST2 = []
 
 # ---------------------------------------SCIENCE DATA/STATE PREALLOCATION----------------------------------------------#
 
