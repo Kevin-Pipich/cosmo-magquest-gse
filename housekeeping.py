@@ -199,13 +199,15 @@ def plot_housekeeping(Voltage_List, Current_List, Temperature_List, Offset_List,
     # Updates all the figures which were already created
     for i in range(0, len(fig)):
         if i < 11:
-            rescale_plots(Voltage_List, i, 1)
-            rescale_plots(Current_List, i, 2)
+            rescale_plots_new(Voltage_List[i], voltage_limits[i], artist_1[i], fig[i], axes[i], axes_background[i])
+            rescale_plots_new(Current_List[i], current_limits[i], artist_2[i], fig[i], axes_twins[i],
+                              axes_twins_background[i])
         elif 11 <= i < 15:
-            rescale_plots(Temperature_List, i - 11, 3)
+            rescale_plots_new(Temperature_List[i], temp_limits[i], artist_1[i], fig[i], axes[i], axes_background[i])
         else:
-            rescale_plots(Offset_List,  i - 15, 4)
-            rescale_plots(Amplitude_List, i - 15, 5)
+            rescale_plots_new(Offset_List[i], offset_limits[i], artist_1[i], fig[i], axes[i], axes_background[i])
+            rescale_plots_new(Amplitude_List[i], amplitude_limits[i], artist_2[i], fig[i], axes_twins[i],
+                              axes_twins_background[i])
 
         fig[i].tight_layout()
         fig[i].canvas.draw()
@@ -213,6 +215,38 @@ def plot_housekeeping(Voltage_List, Current_List, Temperature_List, Offset_List,
 
     # Updates the error flags
     update_error()
+
+
+""" rescale the plots when max or min values extend beyond the limits """
+def rescale_plots_new(List, limits, artist, figure, axis, background):
+    if max(List) > limits[1]:
+        max_limit = max(List) * 1.05
+        min_limit = limits[0]
+
+    elif min(List) < limits[0]:
+        min_limit = min(List) * 0.95
+        max_limit = limits[1]
+
+    elif (max(List) - min(List) * 2) < (limits[1] - limits[0]) \
+            and (max(List) != 0 or min(List) != 0):
+        max_limit = max(List) * 1.05
+        min_limit = min(List) * 0.95
+
+    else:
+        min_limit = limits[0]
+        max_limit = limits[1]
+
+    if min_limit != limits[0] or max_limit != limits[1]:
+        limits = [min_limit, max_limit]
+        axis.set_ylim(limits)
+        background = figure.canvas.copy_from_bbox(axis.bbox)
+
+    if max(List) == 0 and min(List) == 0:
+        figure.canvas.restore_region(background)
+    else:
+        figure.canvas.restore_region(background)
+        artist.set_xdata(HK_x_values)
+        artist.set_ydata(List)
 
 
 """ rescale the plots when max or min values extend beyond the limits """

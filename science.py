@@ -246,9 +246,21 @@ def plot_science():
 
 """ updates the attitude plots live in time domain """
 def plot_attitude():
-    # NST_1[-1][6][0]
-    # NST_2[-1][6][0]
-    pass
+    quaternions_NST1 = []
+    quaternions_NST2 = []
+    for idx in range(0, len(NST_1)):
+        quaternions_NST1.extend([NST_1[idx][0][0], NST_1[idx][0][1], NST_1[idx][0][2], NST_1[idx][0][3]])
+        quaternions_NST2.extend([NST_2[idx][0][0], NST_2[idx][0][1], NST_2[idx][0][2], NST_2[idx][0][3]])
+
+    for idx in range(0, 4):
+        rescale_plots(quaternions_NST1[idx::4], NST1_limits[idx], artist_4[idx], tracker_fig[idx], tracker_axes[idx],
+                      tracker_axes_background[idx])
+        rescale_plots(quaternions_NST2[idx::4], NST2_limits[idx], artist_4[idx+4], tracker_fig[idx],
+                      tracker_axes_twins[idx], tracker_axes_twins_background[idx])
+
+        tracker_fig[idx].tight_layout()
+        tracker_fig[idx].canvas.draw()
+        tracker_fig[idx].canvas.flush_events()
 
 
 """ rescale the plots when max or min values extend beyond the limits """
