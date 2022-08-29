@@ -184,59 +184,20 @@ def update_science(science):
         save_to_file()
 
     plot_science()
+    plot_attitude()
+    update_quality()
 
 
 """ updates science plots live, time domain and frequency domain """
 def plot_science():
-    """ Time domain plot """
-    # Rescale the voltage axes if necessary
-    if max(Scalar_Magnetometer_Data) > magnetometer_limits[1]:
-        magnetometer_limits[0:1] = [magnetometer_limits[0], max(Scalar_Magnetometer_Data) * 1.05]
-        sci_axes[0].set_ylim(magnetometer_limits)
-        sci_axes_background[0] = sci_fig[0].canvas.copy_from_bbox(sci_axes[0].bbox)
-    if min(Scalar_Magnetometer_Data) < magnetometer_limits[0]:
-        magnetometer_limits[0:1] = [min(Scalar_Magnetometer_Data) * 0.95, max(Scalar_Magnetometer_Data) * 1.05]
-        sci_axes[0].set_ylim(magnetometer_limits)
-        sci_axes_background[0] = sci_fig[0].canvas.copy_from_bbox(sci_axes[0].bbox)
-    if (max(Scalar_Magnetometer_Data) - min(Scalar_Magnetometer_Data) * 2) < \
-            (magnetometer_limits[1] - magnetometer_limits[0]) \
-            and max(Scalar_Magnetometer_Data) != 0 and min(Scalar_Magnetometer_Data) != 0:
-        magnetometer_limits[0:1] = [min(Scalar_Magnetometer_Data) * 0.95, max(Scalar_Magnetometer_Data) * 1.05]
-        sci_axes[0].set_ylim(magnetometer_limits)
-        sci_axes_background[0] = sci_fig[0].canvas.copy_from_bbox(sci_axes[0].bbox)
+    # Time domain plot
+    rescale_plots(Scalar_Magnetometer_Data, Science_Time, magnetometer_limits, artist_3[0], sci_fig[0], sci_axes[0],
+                  sci_axes_background[0], 1.10, 0.90)
 
-    if max(Scalar_Magnetometer_Data) == 0 and min(Scalar_Magnetometer_Data) == 0:
-        sci_fig[0].canvas.restore_region(sci_axes_background[0])
-    else:
-        sci_fig[0].canvas.restore_region(sci_axes_background[0])
-        artist_3[0].set_xdata(Science_Time[:][24:])
-        artist_3[0].set_ydata(Scalar_Magnetometer_Data)
+    # Frequency domain plot
+    rescale_plots(PSD, Freq, fft_limits, artist_3[0], sci_fig[0], sci_axes[0], sci_axes_background[0], 1.10, 0.90)
 
-    """ Frequency Domain Plot """
-    # Rescale the voltage axes if necessary
-    if max(PSD[-1]) > fft_limits[1]:
-        fft_limits[0:1] = [fft_limits[0], max(PSD[-1]) * 1.05]
-        sci_axes[1].set_ylim(fft_limits)
-        sci_axes_background[1] = sci_fig[1].canvas.copy_from_bbox(sci_axes[1].bbox)
-    if min(PSD[-1]) < fft_limits[0]:
-        fft_limits[0:1] = [min(PSD[-1]) * 0.95, max(PSD[-1]) * 1.05]
-        sci_axes[1].set_ylim(fft_limits)
-        sci_axes_background[1] = sci_fig[1].canvas.copy_from_bbox(sci_axes[1].bbox)
-    if (max(PSD[-1]) - min(PSD[-1]) * 2) < \
-            (fft_limits[1] - fft_limits[0]) \
-            and max(PSD[-1]) != 0 and min(PSD[-1]) != 0:
-        fft_limits[0:1] = [min(PSD[-1]) * 0.95, max(PSD[-1]) * 1.05]
-        sci_axes[0].set_ylim(fft_limits)
-        sci_axes_background[1] = sci_fig[1].canvas.copy_from_bbox(sci_axes[1].bbox)
-
-    if max(PSD[-1]) == 0 and min(PSD[-1]) == 0:
-        sci_fig[1].canvas.restore_region(sci_axes_background[1])
-    else:
-        sci_fig[1].canvas.restore_region(sci_axes_background[1])
-        artist_3[1].set_xdata(Freq[-1])
-        artist_3[1].set_ydata(PSD[-1])
-
-    """ Magnetometer Spectrogram """
+    # Spectrogram
     sci_axes[2].clear()
     sci_axes[2].pcolormesh(Spec_t[-1], Spec_f[-1], Spec_Sxx[-1], shading='gouraud')
     sci_axes[2].set_ylabel("Frequency [Hz]")
@@ -253,9 +214,9 @@ def plot_attitude():
         quaternions_NST2.extend([NST_2[idx][0][0], NST_2[idx][0][1], NST_2[idx][0][2], NST_2[idx][0][3]])
 
     for idx in range(0, 4):
-        rescale_plots(quaternions_NST1[idx::4], NST1_limits[idx], artist_4[idx], tracker_fig[idx], tracker_axes[idx],
-                      tracker_axes_background[idx], 1.05, 0.95)
-        rescale_plots(quaternions_NST2[idx::4], NST2_limits[idx], artist_4[idx+4], tracker_fig[idx],
+        rescale_plots(quaternions_NST1[idx::4], HK_x_values, NST1_limits[idx], artist_4[idx], tracker_fig[idx],
+                      tracker_axes[idx], tracker_axes_background[idx], 1.05, 0.95)
+        rescale_plots(quaternions_NST2[idx::4], HK_x_values, NST2_limits[idx], artist_4[idx+4], tracker_fig[idx],
                       tracker_axes_twins[idx], tracker_axes_twins_background[idx], 1.10, 0.90)
 
         tracker_fig[idx].tight_layout()
@@ -264,7 +225,7 @@ def plot_attitude():
 
 
 """ rescale the plots when max or min values extend beyond the limits """
-def rescale_plots(List, limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
+def rescale_plots(List, x_values, limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
     if max(List) > limits[1]:
         max_limit = max(List) * upper_tolerance
         min_limit = limits[0]
@@ -291,13 +252,39 @@ def rescale_plots(List, limits, artist, figure, axis, background, upper_toleranc
         figure.canvas.restore_region(background)
     else:
         figure.canvas.restore_region(background)
-        artist.set_xdata(HK_x_values)
+        artist.set_xdata(x_values)
         artist.set_ydata(List)
 
 
 """ updates the labels for the attitude quality """
 def update_quality():
-    pass
+    OpMode_Status = [["IDLE", "red"], ["INITIALIZE", "blue"], ["STARID", "green"], ["TRACK", "green"],
+                     ["PHOTO", "green"], ["CAL", "blue"]]
+    StarID_Status = [["IDLE", "red"], ["INITIALIZE", "blue"], ["WAITING FOR IMAGE", "green"]]
+    Attitude_Status = [["OK", "green"], ["PENDING", "blue"], ["BAD", "red"], ["TOO FEW STARS", "orange"],
+                       ["QUEST FAILED", "red"], ["RESIDUALS TOO HIGH", "red"], ["", "red"], ["", "red"], ["", "red"],
+                       ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"],
+                       ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"],
+                       ["", "red"], ["", "red"], ["RATE TOO HIGH", "red"]]
+    Rate_Est_Status = ["OK", "", "BAD"]
+
+    Attitude_Quality_NST1[0].configure(text=OpMode_Status[NST_1[-1][6][0]][0],
+                                       fg_color=OpMode_Status[NST_1[-1][6][0]][1])
+    Attitude_Quality_NST1[1].configure(text=StarID_Status[NST_1[-1][6][1]][0],
+                                       fg_color=StarID_Status[NST_1[-1][6][1]][1])
+    Attitude_Quality_NST1[2].configure(text=Attitude_Status[NST_1[-1][6][2]][0],
+                                       fg_color=Attitude_Status[NST_1[-1][6][2]][1])
+    Attitude_Quality_NST1[3].configure(text=Rate_Est_Status[NST_1[-1][6][3]][0],
+                                       fg_color=Rate_Est_Status[NST_1[-1][6][3]][1])
+
+    Attitude_Quality_NST2[0].configure(text=OpMode_Status[NST_2[-1][6][0]][0],
+                                       fg_color=OpMode_Status[NST_2[-1][6][0]][1])
+    Attitude_Quality_NST2[1].configure(text=StarID_Status[NST_2[-1][6][1]][0],
+                                       fg_color=StarID_Status[NST_2[-1][6][1]][1])
+    Attitude_Quality_NST2[2].configure(text=Attitude_Status[NST_2[-1][6][2]][0],
+                                       fg_color=Attitude_Status[NST_2[-1][6][2]][1])
+    Attitude_Quality_NST2[3].configure(text=Rate_Est_Status[NST_2[-1][6][3]][0],
+                                       fg_color=Rate_Est_Status[NST_2[-1][6][3]][1])
 
 
 """ updates the magnetometer state live """
