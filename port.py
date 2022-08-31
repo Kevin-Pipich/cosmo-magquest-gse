@@ -3,7 +3,7 @@ This module finds all the ports that are available on the specified device and c
 user requests a new port, these functions will also handel switching the com ports
 """
 # IMPORTED MODULES
-from variables import serial_port
+from variables import serial_port, port_flag
 # Serial modules
 import serial.tools.list_ports
 import serial
@@ -76,6 +76,8 @@ def Connect_to_Port():
     if connectPort != 'None':
         ser = serial.Serial(connectPort, baudrate=115200, timeout=1)
         print('Connected to ' + connectPort)
+        port_flag.clear()
+        port_flag.append(True)
         return ser
 
     else:
@@ -102,9 +104,10 @@ def new_port(Commands):
                                    corner_radius=0,
                                    command=lambda: change_port(counter, ports))
             button.grid(row=counter, column=0, sticky="new", padx=10, pady=5)
+            counter += 1
 
     def change_port(idx, ports):
-        if text_var.get()[-4:][0:3] == "COM":
+        if ports[idx].split(' ')[0] == "COM":
             text_var.set("Selected COM Port: " + ports[idx].split(' ')[0])
             submit.state = NORMAL
 
@@ -146,7 +149,7 @@ def new_port(Commands):
     port_controls.grid(row=2, column=0, sticky="nsew", padx=15, pady=5)
 
     """ Add label to frame """
-    port_frame.rowconfigure(0, weight=1)
+    port_frame.rowconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
     port_frame.columnconfigure(0, weight=1)
 
     com_ports = ctk.CTkLabel(master=port_frame,

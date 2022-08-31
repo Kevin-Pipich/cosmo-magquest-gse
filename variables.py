@@ -14,7 +14,7 @@ sci_deque_size = 60  # set science deque size (1 = 1 second of data)
 # --------------------------------------------SERIAL PORT INITIALIZATION-----------------------------------------------#
 
 serial_port = []  # store the serial port
-lock = Lock()  # create a lock for the threads
+port_flag = [False]  # flag to request current configuration of board when connecting to new port
 
 # ----------------------------------------VOLTAGE AND CURRENT PREALLOCATION--------------------------------------------#
 

@@ -2,7 +2,10 @@
 This module handles all serial port communications
 """
 # IMPORTED MODULES
+import serial.serialutil
+
 import byte
+import port
 from send import *
 from variables import *
 import housekeeping
@@ -16,7 +19,7 @@ from time import time
 
 """ When connection is established, sends a housekeeping request every 10 seconds and a science request every second """
 def scheduler(app):
-    if serial_port[0] is None:
+    if serial_port[-1] is None:
         pass
     else:
         while app.power and not app.exit.is_set():
@@ -34,32 +37,32 @@ def scheduler(app):
 
 """ sends data through the serial port/ builds packet based on op-code and data """
 def send_data(opcode, data):
-    if serial_port[0] is None:
+    if serial_port[-1] is None:
         print("No Connection Established... Data Will Not Be Transmitted or Received!")
     else:
         match opcode:
             case byte.CDH_HK_REQUEST:
-                HK_REQ(serial_port[0])
+                HK_REQ(serial_port[-1])
             case byte.CDH_SCI_REQUEST:
-                SCI_REQ(serial_port[0])
+                SCI_REQ(serial_port[-1])
             case byte.CDH_CONFIG_REQUEST:
-                CONFIG_REQ(serial_port[0])
+                CONFIG_REQ(serial_port[-1])
             case byte.CDH_CONFIG_OP:
-                CONFIG_OP(serial_port[0], data)
+                CONFIG_OP(serial_port[-1], data)
             case byte.CDH_ANALOG_CTRL:
-                ANALOG_CTRL(serial_port[0], data)
+                ANALOG_CTRL(serial_port[-1], data)
             case byte.CDH_SCALAR1_CTRL:
-                SCALAR1_CTRL(serial_port[0], data)
+                SCALAR1_CTRL(serial_port[-1], data)
             case byte.CDH_SCALAR2_CTRL:
-                SCALAR2_CTRL(serial_port[0], data)
+                SCALAR2_CTRL(serial_port[-1], data)
             case byte.CDH_STAR_TRACK1_CTRL:
-                STAR_TRACK1_CTRL(serial_port[0], data)
+                STAR_TRACK1_CTRL(serial_port[-1], data)
             case byte.CDH_STAR_TRACK2_CTRL:
-                STAR_TRACK2_CTRL(serial_port[0], data)
+                STAR_TRACK2_CTRL(serial_port[-1], data)
             case byte.CDH_TIME_OF_TONE:
-                TIME_OF_TONE(serial_port[0], data)
+                TIME_OF_TONE(serial_port[-1], data)
             case byte.CDH_SCIENCE_STREAM_CTRL:
-                SCIENCE_STREAM_CTRL(serial_port[0], data)
+                SCIENCE_STREAM_CTRL(serial_port[-1], data)
             case _:
                 # should never enter default case
                 print("Something Went Horribly Wrong...")
@@ -73,34 +76,34 @@ def receive_data():
     while True:
         # populate the sync pattern deque and check it alongside the actual sync pattern
         check.popleft()
-        check.append(serial_port[0].read(1))
+        check.append(serial_port[-1].read(1))
         if bytes(0).join(check) == byte.SYNC_PATTERN:
-            opcode = serial_port[0].read(1)
+            opcode = serial_port[-1].read(1)
             # find the corresponding op code which will call the necessary function to process the data
             match opcode:
                 case byte.VRUM_HK_OUT_OP:
-                    housekeeping.update_housekeeping(HK_OUT_OP(serial_port[0], opcode))
+                    housekeeping.update_housekeeping(HK_OUT_OP(serial_port[-1], opcode))
                     if housekeeping_display[0] is True:
                         housekeeping.update_housekeeping_display()
                     break
                 case byte.VRUM_SCI_OUT_OP:
-                    science.update_science(SCI_OUT_OP(serial_port[0], opcode))
+                    science.update_science(SCI_OUT_OP(serial_port[-1], opcode))
                     if science_display[0] is True:
                         science.update_science_display()
                     break
                 case byte.VRUM_CONFIG_OUT_OP:
-                    data = CONFIG_OUT_OP(serial_port[0], opcode)
+                    data = CONFIG_OUT_OP(serial_port[-1], opcode)
                     commands.update_config(data)
                     break
                 case byte.VRUM_CONFIG_ACK_OP:
-                    result = CONFIG_ACK_OP(serial_port[0], opcode)
+                    result = CONFIG_ACK_OP(serial_port[-1], opcode)
                     if result is True:
-                        CONFIG_REQ(serial_port[0])
+                        CONFIG_REQ(serial_port[-1])
                     else:
                         print("Packet Not Properly Received, Configuration Not Updated!")
                     break
                 case byte.VRUM_ANALOG_OP:
-                    result = ANALOG_OP(serial_port[0], opcode)
+                    result = ANALOG_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 0)
                         print("Request to activate the analog board has been received!")
@@ -111,7 +114,7 @@ def receive_data():
                         print("Failure to read data!")
                     break
                 case byte.VRUM_SCALAR1_OP:
-                    result = SCALAR1_OP(serial_port[0], opcode)
+                    result = SCALAR1_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 1)
                         print("Request to activate scalar board no.1 has been received!")
@@ -122,7 +125,7 @@ def receive_data():
                         print("Failure to read data!")
                     break
                 case byte.VRUM_SCALAR2_OP:
-                    result = SCALAR2_OP(serial_port[0], opcode)
+                    result = SCALAR2_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 2)
                         print("Request to activate scalar board no.2 has been received!")
@@ -133,7 +136,7 @@ def receive_data():
                         print("Failure to read data!")
                     break
                 case byte.VRUM_STAR_TRACK1_OP:
-                    result = STAR_TRACK1_OP(serial_port[0], opcode)
+                    result = STAR_TRACK1_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 3)
                         print("Request to activate star tracker no.1 has been received!")
@@ -144,7 +147,7 @@ def receive_data():
                         print("Failure to read data!")
                     break
                 case byte.VRUM_STAR_TRACK2_OP:
-                    result = STAR_TRACK2_OP(serial_port[0], opcode)
+                    result = STAR_TRACK2_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 4)
                         print("Request to activate star tracker no.2 has been received!")
@@ -155,7 +158,7 @@ def receive_data():
                         print("Failure to read data!")
                     break
                 case byte.VRUM_TIME_ACK_OP:
-                    result = TIME_ACK_OP(serial_port[0], opcode)
+                    result = TIME_ACK_OP(serial_port[-1], opcode)
                     if result is True:
                         pass
                     elif result is False:
@@ -164,7 +167,7 @@ def receive_data():
                         print("Failed to receive time of tone acknowledge!")
                     break
                 case byte.VRUM_SCIENCE_STREAM_OP:
-                    result = SCIENCE_STREAM_OP(serial_port[0], opcode)
+                    result = SCIENCE_STREAM_OP(serial_port[-1], opcode)
                     if result is True:
                         pass
                     elif result is False:
@@ -179,9 +182,18 @@ def receive_data():
 
 """ always searches for data in bus and locks sending until the data is received """
 def uart_driver():
-    if serial_port[0] is None:
+    if serial_port[-1] is None:
         print("No Connection Established... Data Will Not Be Transmitted or Received!")
     else:
         while True:
-            if serial_port[0].in_waiting > 0:
-                receive_data()
+            try:
+                if serial_port[-1].in_waiting > 0:
+                    receive_data()
+                if port_flag[0]:
+                    send_data(byte.CDH_CONFIG_REQUEST, None)
+                    port_flag.clear()
+                    port_flag.append(False)
+            except serial.serialutil.SerialException:
+                serial_port.append(port.Connect_to_Port())
+            except AttributeError:
+                serial_port.append(port.Connect_to_Port())
