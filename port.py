@@ -97,17 +97,17 @@ def new_port(Commands):
     def scan_for_ports():
         ports = get_all_ports()
         counter = 0
-        for x in ports:
+        for i in range(0, len(ports)):
             button = ctk.CTkButton(master=port_frame,
-                                   text=x,
+                                   text=ports[i],
                                    fg_color="#1a1a1a",
                                    corner_radius=0,
-                                   command=lambda: change_port(counter, ports))
+                                   command=lambda idx=counter: change_port(idx, ports))
             button.grid(row=counter, column=0, sticky="new", padx=10, pady=5)
             counter += 1
 
     def change_port(idx, ports):
-        if ports[idx].split(' ')[0] == "COM":
+        if ports[idx].split(' ')[0][:3] == "COM":
             text_var.set("Selected COM Port: " + ports[idx].split(' ')[0])
             submit.state = NORMAL
 
