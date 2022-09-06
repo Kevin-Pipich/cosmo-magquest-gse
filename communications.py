@@ -18,11 +18,11 @@ from time import time
 # -----------------------------------------SEND/RECEIVE FUNCTIONS----------------------------------------------------- #
 
 """ When connection is established, sends a housekeeping request every 10 seconds and a science request every second """
-def scheduler(app):
+def scheduler():
     if serial_port[-1] is None:
         pass
     else:
-        while app.power and not app.exit.is_set():
+        while power[-1] and not exit_set[-1].is_set():
             send_data(byte.CDH_HK_REQUEST, None)  # send housekeeping request
 
             for i in range(0, 10):
@@ -32,7 +32,7 @@ def scheduler(app):
 
                 send_data(byte.CDH_TIME_OF_TONE, int.to_bytes(current_time, 4, "little"))
 
-                app.exit.wait(1)
+                exit_set[-1].wait(1)
 
 
 """ sends data through the serial port/ builds packet based on op-code and data """

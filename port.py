@@ -4,6 +4,8 @@ user requests a new port, these functions will also handel switching the com por
 """
 # IMPORTED MODULES
 from variables import serial_port, port_flag
+from communications import scheduler, uart_driver
+from threading import Thread
 # Serial modules
 import serial.tools.list_ports
 import serial
@@ -126,6 +128,15 @@ def new_port(Commands):
         Commands.parity_label.configure(text="Parity: " + properties[2])
 
         Commands.stop_bits_label.configure(text="Stop Bits: " + properties[3])
+
+        t1 = Thread(target=scheduler)
+        t2 = Thread(target=uart_driver)
+
+        t1.daemon = True
+        t2.daemon = True
+
+        t1.start()
+        t2.start()
 
     com_window = ctk.CTkToplevel()
     com_window.geometry("550x365")

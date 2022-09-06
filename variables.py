@@ -4,17 +4,20 @@ This module defines and preallocates memory to all variables that are used betwe
 # Organization modules
 from collections import deque
 from numpy import zeros
-from threading import Lock
+from threading import Event
 
 # -----------------------------------------------DEFINE DEQUE SIZE-----------------------------------------------------#
 
 deque_size = 24  # set deque size (6 = 1 min of data)
 sci_deque_size = 60  # set science deque size (1 = 1 second of data)
 
-# --------------------------------------------SERIAL PORT INITIALIZATION-----------------------------------------------#
+# -------------------------------------SERIAL PORT INITIALIZATION/FUNCTIONALITY----------------------------------------#
 
 serial_port = []  # store the serial port
 port_flag = [False]  # flag to request current configuration of board when connecting to new port
+
+exit_set = [Event()]
+power = [True]
 
 # ----------------------------------------VOLTAGE AND CURRENT PREALLOCATION--------------------------------------------#
 

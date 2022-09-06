@@ -38,10 +38,6 @@ class App(ctk.CTk):
     WIDTH = 1920
     HEIGHT = 1080
 
-    power = True  # must be true in order to send/receive commands
-
-    exit = threading.Event()
-
     serial_port.append(port.Connect_to_Port())
 
     def __init__(self, *args, **kwargs):
@@ -87,8 +83,8 @@ class App(ctk.CTk):
         """
         closes all the tabs/ windows/ threads when either the 'close' button or the 'x' button is hit
         """
-        self.power = False
-        self.exit.set()
+        power.append(False)
+        exit_set[-1].set()
         if int(points_saved[0].text) != 0:
             science.save_file()
         sys.exit()
@@ -1472,13 +1468,13 @@ if __name__ == "__main__":
 
     # ----------------------------------------------- THREADING -------------------------------------------------------#
 
-    t1 = threading.Thread(target=communications.scheduler, args=(app,))
+    t1 = threading.Thread(target=communications.scheduler)
     t2 = threading.Thread(target=communications.uart_driver)
 
     t1.daemon = True
     t2.daemon = True
 
-    t2.start()
     t1.start()
+    t2.start()
 
     app.mainloop()
