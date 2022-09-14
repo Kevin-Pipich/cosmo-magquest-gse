@@ -24,6 +24,7 @@ from PIL import ImageTk, Image
 
 """ organizes science packet into usable data """
 def update_science(science):
+    print(science)
     if science is None:
         return
 
@@ -154,14 +155,17 @@ def update_science(science):
             t3.start()
             flag = True
 
-    Scalar_Magnetometer_Data.append(np.mean(Raw_Scalar_Magnetometer_Data[-100:]))  # average of all the raw scalar data
+    scalar_list = []
+    for i in range(1, 100):
+        scalar_list.append(Raw_Scalar_Magnetometer_Data[-i])
+    Scalar_Magnetometer_Data.append(np.mean(scalar_list))  # average of all the raw scalar data
     State_Change.append(flag)
 
     # Frequency domain representation
     dt = int(current_scalar_sample_rate[0].text[:-3])  # sample rate
 
-    n = len(Raw_Scalar_Magnetometer_Data[-100:])  # take a fft of the 100 data points given each second
-    f_hat = np.fft.fft(Raw_Scalar_Magnetometer_Data[-100:], n)
+    n = len(scalar_list)  # take a fft of the 100 data points given each second
+    f_hat = np.fft.fft(scalar_list, n)
     FFT_amp = f_hat * np.conj(f_hat) / n
     freq = (1 / (dt * n)) * np.arange(n)
     L = np.arange(1, np.floor(n / 2), dtype='int')
@@ -184,8 +188,8 @@ def update_science(science):
         save_to_file()
 
     plot_science()
-    plot_attitude()
-    update_quality()
+    # plot_attitude()
+    # update_quality()
 
 
 """ updates science plots live, time domain and frequency domain """
@@ -226,35 +230,39 @@ def plot_attitude():
 
 """ rescale the plots when max or min values extend beyond the limits """
 def rescale_plots(List, x_values, limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
-    if max(List) > limits[1]:
-        max_limit = max(List) * upper_tolerance
-        min_limit = limits[0]
+    try:
+        if max(List) > limits[1]:
+            max_limit = max(List) * upper_tolerance
+            min_limit = limits[0]
 
-    elif min(List) < limits[0]:
-        min_limit = min(List) * lower_tolerance
-        max_limit = limits[1]
+        elif min(List) < limits[0]:
+            min_limit = min(List) * lower_tolerance
+            max_limit = limits[1]
 
-    elif (max(List) - min(List) * 2) < (limits[1] - limits[0]) \
-            and (max(List) != 0 or min(List) != 0):
-        max_limit = max(List) * upper_tolerance
-        min_limit = min(List) * lower_tolerance
+        elif (max(List) - min(List) * 2) < (limits[1] - limits[0]) \
+                and (max(List) != 0 or min(List) != 0):
+            max_limit = max(List) * upper_tolerance
+            min_limit = min(List) * lower_tolerance
 
-    else:
-        min_limit = limits[0]
-        max_limit = limits[1]
+        else:
+            min_limit = limits[0]
+            max_limit = limits[1]
 
-    if min_limit != limits[0] or max_limit != limits[1]:
-        limits = [min_limit, max_limit]
-        axis.set_ylim(limits)
-        background = figure.canvas.copy_from_bbox(axis.bbox)
+        if min_limit != limits[0] or max_limit != limits[1]:
+            limits = [min_limit, max_limit]
+            axis.set_ylim(limits)
+            background = figure.canvas.copy_from_bbox(axis.bbox)
 
-    if max(List) == 0 and min(List) == 0:
-        figure.canvas.restore_region(background)
-    else:
+        if max(List) == 0 and min(List) == 0:
+            figure.canvas.restore_region(background)
+        else:
+            figure.canvas.restore_region(background)
+            artist.set_xdata(x_values)
+            artist.set_ydata(List)
+    except ValueError:
         figure.canvas.restore_region(background)
         artist.set_xdata(x_values)
         artist.set_ydata(List)
-
 
 """ updates the labels for the attitude quality """
 def update_quality():

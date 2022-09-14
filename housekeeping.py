@@ -460,7 +460,7 @@ def update_error():
     ERROR_LIST.append([e0[-8] == "1", "INA (Scalar Board No.2)\nconfiguration"])
     ERROR_LIST.append([e0[-9] == "1", "TMP No.1 (Digital Board)\nconfiguration"])
     ERROR_LIST.append([e0[-10] == "1", "TMP No.2 (Digital Board)\nconfiguration"])
-    ERROR_LIST.append([e0[-11] == "1", "TMP (Scalar Board No.2)\nconfiguration"])
+    ERROR_LIST.append([e0[-11] == "1", "TMP (Scalar Board No.1)\nconfiguration"])
     ERROR_LIST.append([e0[-12] == "1", "TMP (Scalar Board No.2)\nconfiguration"])
 
     # Housekeeping Task Status (HK Sensor Poll Status)
@@ -470,7 +470,7 @@ def update_error():
     ERROR_LIST.append([e0[-16] == "1", "INA (Scalar Board No.2)\npolling"])
     ERROR_LIST.append([e0[-17] == "1", "TMP No.1 (Digital Board)\npolling"])
     ERROR_LIST.append([e0[-18] == "1", "TMP No.2 (Digital Board)\npolling"])
-    ERROR_LIST.append([e0[-19] == "1", "TMP (Scalar Board No.2)\npolling"])
+    ERROR_LIST.append([e0[-19] == "1", "TMP (Scalar Board No.1)\npolling"])
     ERROR_LIST.append([e0[-20] == "1", "TMP (Scalar Board No.2)\npolling"])
 
     # Coil Control Task Status (Coil Drivers Configuration Status)
