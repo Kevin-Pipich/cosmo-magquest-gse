@@ -117,6 +117,7 @@ def receive_data():
                     result = SCALAR1_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 1)
+                        commands.change_led(False, 2)
                         print("Request to activate scalar board no.1 has been received!")
                     elif result is False:
                         commands.change_led(result, 1)
@@ -128,6 +129,7 @@ def receive_data():
                     result = SCALAR2_OP(serial_port[-1], opcode)
                     if result is True:
                         commands.change_led(result, 2)
+                        commands.change_led(False, 1)
                         print("Request to activate scalar board no.2 has been received!")
                     elif result is False:
                         commands.change_led(result, 2)

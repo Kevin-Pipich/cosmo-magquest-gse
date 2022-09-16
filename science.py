@@ -28,9 +28,9 @@ def update_science(science):
     if science is None:
         return
 
-    packet_data_length = int.from_bytes(science[4:5], "big")
+    packet_data_length = int.from_bytes(science[4:6], "big")
     """ Time Data """
-    time_since_1980 = int.from_bytes(science[7:10], "big")  # 2 bytes big endian
+    time_since_1980 = int.from_bytes(science[7:11], "big")  # 2 bytes big endian
 
     # Determine the time between the epoch and the day GPS was stirred to UTC
     d1 = datetime(1970, 1, 1, 0, 0, 0)
@@ -39,6 +39,7 @@ def update_science(science):
     current_time = strftime("%A, %B %d, %Y %H:%M:%S", gmtime(time_since_1980 + (d2 - d1).total_seconds()))
 
     # save time from GPS
+    Science_Time.popleft()
     Science_Time.append(current_time)
 
     """ Nano-Star Tracker 1 Data """
@@ -129,15 +130,29 @@ def update_science(science):
 
     """ Scalar Magnetometer Data and State """
     flag = False
-    for i in range(123, packet_data_length, 4):
+    for i in range(123, packet_data_length + 5, 5):
+        Raw_Scalar_Magnetometer_Data.popleft()
+        Magnetometer_Status.popleft()
+        Mod8_Counter.popleft()
+        CRC_Flag.popleft()
+
         Raw_Scalar_Magnetometer_Data.append(int.from_bytes(science[i:i + 4], "big"))  # Reads 4 bytes of mag out
         Raw_Scalar_Magnetometer_State = ("{:08b}".format(science[i + 4]))  # Reads 1 byte of state
         Magnetometer_Status.append(int(Raw_Scalar_Magnetometer_State[-4:], 2))  # Saves Magnetometer Status
         Mod8_Counter.append(int(Raw_Scalar_Magnetometer_State[:3], 2))  # Saves scalar "timestamp"
         CRC_Flag.append(Raw_Scalar_Magnetometer_State[3])  # Saves CRC flag
 
+        print("-----------")
+        print(i)
+        print(i+4)
+        print(Raw_Scalar_Magnetometer_State)
+        print(Magnetometer_Status)
+        print(Mod8_Counter)
+        print(CRC_Flag)
+        print("-----------")
+
         # Confirm that the no packets were skipped
-        if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and (Mod8_Counter[-2] != 7 and Mod8_Counter[-1] != 0):
+        if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and not (Mod8_Counter[-2] == 7 and Mod8_Counter[-1] == 0):
             if Mod8_Counter[-2] > Mod8_Counter[-1]:
                 skipped_packets = 7 - Mod8_Counter[-2] + Mod8_Counter[-1]
             else:
@@ -158,6 +173,8 @@ def update_science(science):
     scalar_list = []
     for i in range(1, 100):
         scalar_list.append(Raw_Scalar_Magnetometer_Data[-i])
+    Scalar_Magnetometer_Data.popleft()
+    State_Change.popleft()
     Scalar_Magnetometer_Data.append(np.mean(scalar_list))  # average of all the raw scalar data
     State_Change.append(flag)
 
@@ -191,15 +208,18 @@ def update_science(science):
     # plot_attitude()
     # update_quality()
 
+    Science_x_values.popleft()
+    Science_x_values.append(Science_x_values[-1] + 1)
+
 
 """ updates science plots live, time domain and frequency domain """
 def plot_science():
     # Time domain plot
-    rescale_plots(Scalar_Magnetometer_Data, Science_Time, magnetometer_limits, artist_3[0], sci_fig[0], sci_axes[0],
+    rescale_plots(Scalar_Magnetometer_Data, Science_x_values, magnetometer_limits, artist_3[0], sci_fig[0], sci_axes[0],
                   sci_axes_background[0], 1.10, 0.90)
 
     # Frequency domain plot
-    rescale_plots(PSD, Freq, fft_limits, artist_3[0], sci_fig[0], sci_axes[0], sci_axes_background[0], 1.10, 0.90)
+    rescale_plots(PSD, Freq, fft_limits, artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1], 1.10, 0.90)
 
     # Spectrogram
     sci_axes[2].clear()

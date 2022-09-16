@@ -184,6 +184,7 @@ Attitude_Quality_NST2 = []
 # ---------------------------------------SCIENCE DATA/STATE PREALLOCATION----------------------------------------------#
 
 Science_Time = deque(zeros(sci_deque_size))  # Initialize GPS time
+Science_x_values = deque(zeros(sci_deque_size))
 
 NST_1 = deque(zeros(sci_deque_size))  # Star Tracker 1 data
 NST_2 = deque(zeros(sci_deque_size))  # Star Tracker 2 data
