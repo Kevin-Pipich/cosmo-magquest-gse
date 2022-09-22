@@ -24,7 +24,6 @@ from PIL import ImageTk, Image
 
 """ organizes science packet into usable data """
 def update_science(science):
-    print(science)
     if science is None:
         return
 
@@ -142,26 +141,28 @@ def update_science(science):
         Mod8_Counter.append(int(Raw_Scalar_Magnetometer_State[:3], 2))  # Saves scalar "timestamp"
         CRC_Flag.append(Raw_Scalar_Magnetometer_State[3])  # Saves CRC flag
 
-        print("-----------")
-        print(i)
-        print(i+4)
-        print(Raw_Scalar_Magnetometer_State)
-        print(Magnetometer_Status)
-        print(Mod8_Counter)
-        print(CRC_Flag)
-        print("-----------")
+        # print("-----------")
+        # print(i)
+        # print(i+4)
+        # print(Raw_Scalar_Magnetometer_State)
+        # print(Magnetometer_Status)
+        # print(Mod8_Counter)
+        # print(CRC_Flag)
+        # print("-----------")
 
         # Confirm that the no packets were skipped
-        if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and not (Mod8_Counter[-2] == 7 and Mod8_Counter[-1] == 0):
+        if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and not (Mod8_Counter[-2] == 7 and Mod8_Counter[-1] == 0) and \
+                not (Mod8_Counter[-2] == 0 and Mod8_Counter[-1] == 0):
             if Mod8_Counter[-2] > Mod8_Counter[-1]:
                 skipped_packets = 7 - Mod8_Counter[-2] + Mod8_Counter[-1]
             else:
                 skipped_packets = Mod8_Counter[-1] - Mod8_Counter[-2]
-            print("Packet Skipped!\nNumber of Skipped Packets: " + str(skipped_packets))
+            # print("Packet Skipped!\nNumber of Skipped Packets: " + str(skipped_packets))
 
         # Confirm the CRC Flag is correct
         if CRC_Flag[-1] != 1:
-            print("Scalar Transmission of CRC Failed!")
+            pass
+            # print("Scalar Transmission of CRC Failed!")
 
         # Check if the status of the magnetometer has changed
         if Magnetometer_Status[-1] != Magnetometer_Status[-2]:
@@ -204,7 +205,7 @@ def update_science(science):
     if write_checkbox[0].get() == 1:
         save_to_file()
 
-    plot_science()
+    # plot_science()
     # plot_attitude()
     # update_quality()
 
@@ -219,7 +220,7 @@ def plot_science():
                   sci_axes_background[0], 1.10, 0.90)
 
     # Frequency domain plot
-    rescale_plots(PSD, Freq, fft_limits, artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1], 1.10, 0.90)
+    rescale_plots(PSD[-1], Freq[-1], fft_limits, artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1], 1.10, 0.90)
 
     # Spectrogram
     sci_axes[2].clear()
@@ -283,6 +284,7 @@ def rescale_plots(List, x_values, limits, artist, figure, axis, background, uppe
         figure.canvas.restore_region(background)
         artist.set_xdata(x_values)
         artist.set_ydata(List)
+
 
 """ updates the labels for the attitude quality """
 def update_quality():
@@ -434,9 +436,9 @@ def update_science_display():
 
 """ saves all science data to a csv until user decides to save file or close GUI """
 def save_to_file():
-    points_saved[0].configure(text=str(points_saved[0].get() + 1))
+    points_saved[0].configure(text=str(int(num_saved[0].get()) + 1))
 
-    if points_saved[0].get() == "1":
+    if num_saved[0].get() == "1":
         header = ['Timestamp', 'Magnetometer Output', 'Magnetometer State', 'β0 (NST 1)', 'β1 (NST 1)',
                   'β2 (NST 1)', 'β3 (NST 1)', 'ω1 (NST 1)', 'ω2 (NST 1)', 'ω3 (NST 1)',
                   'Tracker Right Ascension (NST 1)', 'Declination (NST 1)', 'Tracker Roll (NST 1)', 'COV1 (NST 1)',
@@ -473,7 +475,7 @@ def save_to_file():
 
 """ saves csv file of science data """
 def save_file():
-    if points_saved[0].get() == "0":
+    if num_saved[0].get() == "0":
         print("No Data Was Collected and Therefore, No Data Was Saved")
     else:
         print("Data Saved Successfully!")

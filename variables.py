@@ -240,4 +240,5 @@ state_label = []  # magnetometer state label (used in update_state() func)
 
 write_checkbox = []  # save to file checkbox (used in save_to_file() func)
 points_saved = []  # save to file label (used in save_to_file() func)
+num_saved = []  # text variable of points saved (used in save_to_file() func)
 sci_csvwriter = []  # save to file writer that enables the creation of a csv file (used in save_to_file() func)

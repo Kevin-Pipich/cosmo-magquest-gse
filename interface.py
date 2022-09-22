@@ -1217,8 +1217,11 @@ class Science(ctk.CTkFrame):
                                          height=50)
         self.number_saved.grid(row=2, column=0, sticky="nsew", pady=5, padx=5)
 
+        num_saved.append(tkinter.StringVar(value="0"))
+
         points_saved.append(ctk.CTkLabel(master=self.frame_options,
                                          text="0",
+                                         textvariable=num_saved[0],
                                          text_font=("Kanit", -20, "bold"),
                                          fg_color=("white", "gray38"),
                                          corner_radius=8))
@@ -1286,11 +1289,11 @@ class Science(ctk.CTkFrame):
         self.state_led.image = black_img
         self.state_led.grid(row=1, column=0, sticky="nsew")
 
-        self.state_label = ctk.CTkLabel(master=self.frame_state,
+        state_label.append(ctk.CTkLabel(master=self.frame_state,
                                         text="OFF",
                                         text_font=("Kanit", -20, "bold"),
-                                        height=50)
-        self.state_label.grid(row=1, column=1)
+                                        height=50))
+        state_label[0].grid(row=1, column=1)
 
         """ Star Tracker Frame of Tab Control """
         # ============ frame_quaternion_plot ============
