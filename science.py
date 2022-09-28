@@ -82,6 +82,7 @@ def update_science(science):
     nano_star_tracker_1_data = [attitude_quaternion, angular_velocity, tracker_right_ascension, declination,
                                 tracker_roll, attitude_covariance, tracker_status]
     # save data from NST 1 - in form specified as in TAB-PLD-002 VRuM FSW Specifications
+    NST_1.popleft()
     NST_1.append(nano_star_tracker_1_data)
 
     """ Nano-Star Tracker 2 Data """
@@ -125,6 +126,7 @@ def update_science(science):
     nano_star_tracker_2_data = [attitude_quaternion, angular_velocity, tracker_right_ascension, declination,
                                 tracker_roll, attitude_covariance, tracker_status]
     # save data from NST 2 - in form specified as in TAB-PLD-002 VRuM FSW Specifications
+    NST_2.popleft()
     NST_2.append(nano_star_tracker_2_data)
 
     """ Scalar Magnetometer Data and State """
@@ -141,15 +143,6 @@ def update_science(science):
         Mod8_Counter.append(int(Raw_Scalar_Magnetometer_State[:3], 2))  # Saves scalar "timestamp"
         CRC_Flag.append(Raw_Scalar_Magnetometer_State[3])  # Saves CRC flag
 
-        # print("-----------")
-        # print(i)
-        # print(i+4)
-        # print(Raw_Scalar_Magnetometer_State)
-        # print(Magnetometer_Status)
-        # print(Mod8_Counter)
-        # print(CRC_Flag)
-        # print("-----------")
-
         # Confirm that the no packets were skipped
         if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and not (Mod8_Counter[-2] == 7 and Mod8_Counter[-1] == 0) and \
                 not (Mod8_Counter[-2] == 0 and Mod8_Counter[-1] == 0):
@@ -157,12 +150,12 @@ def update_science(science):
                 skipped_packets = 7 - Mod8_Counter[-2] + Mod8_Counter[-1]
             else:
                 skipped_packets = Mod8_Counter[-1] - Mod8_Counter[-2]
-            # print("Packet Skipped!\nNumber of Skipped Packets: " + str(skipped_packets))
+            print("Packet Skipped!\nNumber of Skipped Packets: " + str(skipped_packets))
 
         # Confirm the CRC Flag is correct
         if CRC_Flag[-1] != 1:
             pass
-            # print("Scalar Transmission of CRC Failed!")
+            print("Scalar Transmission of CRC Failed!")
 
         # Check if the status of the magnetometer has changed
         if Magnetometer_Status[-1] != Magnetometer_Status[-2]:
@@ -205,9 +198,9 @@ def update_science(science):
     if write_checkbox[0].get() == 1:
         save_to_file()
 
-    # plot_science()
-    # plot_attitude()
-    # update_quality()
+    plot_science()
+    plot_attitude()
+    update_quality()
 
     Science_x_values.popleft()
     Science_x_values.append(Science_x_values[-1] + 1)
@@ -235,18 +228,21 @@ def plot_attitude():
     quaternions_NST1 = []
     quaternions_NST2 = []
     for idx in range(0, len(NST_1)):
-        quaternions_NST1.extend([NST_1[idx][0][0], NST_1[idx][0][1], NST_1[idx][0][2], NST_1[idx][0][3]])
-        quaternions_NST2.extend([NST_2[idx][0][0], NST_2[idx][0][1], NST_2[idx][0][2], NST_2[idx][0][3]])
+        try:
+            quaternions_NST1.extend([NST_1[idx][0][0], NST_1[idx][0][1], NST_1[idx][0][2], NST_1[idx][0][3]])
+            quaternions_NST2.extend([NST_2[idx][0][0], NST_2[idx][0][1], NST_2[idx][0][2], NST_2[idx][0][3]])
+        except IndexError or TypeError or ValueError:
+            quaternions_NST1.extend([0, 0, 0, 0])
+            quaternions_NST2.extend([0, 0, 0, 0])
+
+    print(quaternions_NST1[0::4])
+    print(len(quaternions_NST1[0::4]))
 
     for idx in range(0, 4):
-        rescale_plots(quaternions_NST1[idx::4], HK_x_values, NST1_limits[idx], artist_4[idx], tracker_fig[idx],
+        rescale_plots(quaternions_NST1[idx::4], Science_x_values, NST1_limits[idx], artist_4[idx], tracker_fig[idx],
                       tracker_axes[idx], tracker_axes_background[idx], 1.05, 0.95)
-        rescale_plots(quaternions_NST2[idx::4], HK_x_values, NST2_limits[idx], artist_4[idx+4], tracker_fig[idx],
+        rescale_plots(quaternions_NST2[idx::4], Science_x_values, NST2_limits[idx], artist_4[idx+4], tracker_fig[idx],
                       tracker_axes_twins[idx], tracker_axes_twins_background[idx], 1.10, 0.90)
-
-        tracker_fig[idx].tight_layout()
-        tracker_fig[idx].canvas.draw()
-        tracker_fig[idx].canvas.flush_events()
 
 
 """ rescale the plots when max or min values extend beyond the limits """
@@ -296,7 +292,7 @@ def update_quality():
                        ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"],
                        ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"], ["", "red"],
                        ["", "red"], ["", "red"], ["RATE TOO HIGH", "red"]]
-    Rate_Est_Status = ["OK", "", "BAD"]
+    Rate_Est_Status = [["OK", "green"], ["", "orange"], ["BAD", "red"]]
 
     Attitude_Quality_NST1[0].configure(text=OpMode_Status[NST_1[-1][6][0]][0],
                                        fg_color=OpMode_Status[NST_1[-1][6][0]][1])
