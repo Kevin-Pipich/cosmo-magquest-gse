@@ -193,6 +193,8 @@ Raw_Scalar_Magnetometer_Data = deque(zeros(1025))  # Raw scalar data (size = 102
 Scalar_Magnetometer_Data = deque(zeros(sci_deque_size))  # Average of last 100 magnetometer data
 
 Magnetometer_Status = deque(zeros(100))  # State of the magnetometer
+Magnetometer_Status.popleft()
+Magnetometer_Status.append(1)
 State_Change = deque(zeros(sci_deque_size))  # Did the magnetometer change state in the last scalar packet
 Mod8_Counter = deque(zeros(100))  # Packet counter to ensure no packets are skipped
 CRC_Flag = deque(zeros(100))  # CRC flag for scalar packets

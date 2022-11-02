@@ -145,7 +145,7 @@ def update_science(science):
 
         # Confirm that the no packets were skipped
         if Mod8_Counter[-1] != Mod8_Counter[-2] + 1 and not (Mod8_Counter[-2] == 7 and Mod8_Counter[-1] == 0) and \
-                not (Mod8_Counter[-2] == 0 and Mod8_Counter[-1] == 0):
+                not (Mod8_Counter[-2] == 0 and Mod8_Counter[-1] == 0) and i != 123:
             if Mod8_Counter[-2] > Mod8_Counter[-1]:
                 skipped_packets = 7 - Mod8_Counter[-2] + Mod8_Counter[-1]
             else:
@@ -153,9 +153,8 @@ def update_science(science):
             print("Packet Skipped!\nNumber of Skipped Packets: " + str(skipped_packets))
 
         # Confirm the CRC Flag is correct
-        if CRC_Flag[-1] != 1:
-            pass
-            print("Scalar Transmission of CRC Failed!")
+        if int(CRC_Flag[-1]) != 1:
+            print("Scalar Transmission of CRC Failed! Packet #" + str((i-123)/5))
 
         # Check if the status of the magnetometer has changed
         if Magnetometer_Status[-1] != Magnetometer_Status[-2]:
@@ -234,9 +233,6 @@ def plot_attitude():
         except IndexError or TypeError or ValueError:
             quaternions_NST1.extend([0, 0, 0, 0])
             quaternions_NST2.extend([0, 0, 0, 0])
-
-    print(quaternions_NST1[0::4])
-    print(len(quaternions_NST1[0::4]))
 
     for idx in range(0, 4):
         rescale_plots(quaternions_NST1[idx::4], Science_x_values, NST1_limits[idx], artist_4[idx], tracker_fig[idx],
