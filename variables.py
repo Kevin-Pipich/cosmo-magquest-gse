@@ -133,7 +133,7 @@ sci_axes = []  # All science axes
 sci_axes_background = []  # Saved background of science plots
 
 sci_plot_names = ["Magnetometer Data Time Domain", "Magnetometer Data Frequency Domain",
-                  "Magnetometer Spectrogram"]
+                  "Magnetometer Spectrogram", "State Plot"]
 
 artist_3 = []  # Artist for science axes
 
@@ -165,6 +165,9 @@ amplitude_limits = [[0, 1], [0, 1], [0, 1]]
 magnetometer_limits = [0, 10]
 fft_limits = [0, 10]
 
+mag_x_limits = [0, 60]
+fft_x_limits = [0, 60]
+
 """ Star Tracker Plots Limits """
 NST1_limits = [[0, 1], [0, 1], [0, 1], [0, 1]]
 NST2_limits = [[0, 1], [0, 1], [0, 1], [0, 1]]
@@ -195,6 +198,7 @@ Scalar_Magnetometer_Data = deque(zeros(sci_deque_size))  # Average of last 100 m
 Magnetometer_Status = deque(zeros(100))  # State of the magnetometer
 Magnetometer_Status.popleft()
 Magnetometer_Status.append(1)
+Magnetometer_State = deque(zeros(100))  # Shows the state of the magnetometer at the end of a science packet
 State_Change = deque(zeros(sci_deque_size))  # Did the magnetometer change state in the last scalar packet
 Mod8_Counter = deque(zeros(100))  # Packet counter to ensure no packets are skipped
 CRC_Flag = deque(zeros(100))  # CRC flag for scalar packets
@@ -239,8 +243,11 @@ board_led = []  # all the board led indicators (5 leds)
 """ Science Page """
 led_image = []  # magnetometer state light indicator (used in update_state() func)
 state_label = []  # magnetometer state label (used in update_state() func)
+sci_CRC_image = []  # light indicator to ensure CRC passes
+sci_CRC_label = []  # CRC label
 
 write_checkbox = []  # save to file checkbox (used in save_to_file() func)
 points_saved = []  # save to file label (used in save_to_file() func)
 num_saved = []  # text variable of points saved (used in save_to_file() func)
 sci_csvwriter = []  # save to file writer that enables the creation of a csv file (used in save_to_file() func)
+write_to_sci = []  # provides allow user to take their time when choosing a directory for their csv file

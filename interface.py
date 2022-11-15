@@ -2,6 +2,7 @@
 This module contains the creation of the GUI. interface.py handles the creation of all objects (plots, buttons, sliders,
 etc.) to be placed within the GUI.
 """
+import send
 # IMPORTED MODULES
 from variables import *
 from byte import *
@@ -87,6 +88,9 @@ class App(ctk.CTk):
         exit_set[-1].set()
         if int(points_saved[0].text) != 0:
             science.save_file()
+        if stream_science_checkbox[0].get() == 1:
+            send.SCIENCE_STREAM_CTRL(serial_port[0], OFF)
+            print("Science data no longer streaming")
         sys.exit()
 
 
@@ -1167,17 +1171,21 @@ class Science(ctk.CTkFrame):
 
         self.magnetometer_frame.rowconfigure(0, weight=1)
         self.magnetometer_frame.rowconfigure(1, weight=50, minsize=500)
+        self.magnetometer_frame.rowconfigure(2, weight=1)
         self.magnetometer_frame.columnconfigure(0, weight=1, minsize=350)
         self.magnetometer_frame.columnconfigure(1, weight=50)
 
         self.frame_options = ctk.CTkFrame(master=self.magnetometer_frame)
-        self.frame_options.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        self.frame_options.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)
 
         self.frame_sci_plot = ctk.CTkFrame(master=self.magnetometer_frame)
-        self.frame_sci_plot.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=20, pady=20)
+        self.frame_sci_plot.grid(row=0, column=1, rowspan=3, sticky="nsew", padx=20, pady=10)
 
         self.frame_state = ctk.CTkFrame(master=self.magnetometer_frame)
-        self.frame_state.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
+        self.frame_state.grid(row=0, column=0, sticky="nsew", padx=20, pady=10)
+
+        self.frame_comms = ctk.CTkFrame(master=self.magnetometer_frame)
+        self.frame_comms.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
 
         self.star_tracker_frame = ctk.CTkFrame(master=tabControl)
         tabControl.add(self.star_tracker_frame, text="Star Tracker Data")
@@ -1229,7 +1237,7 @@ class Science(ctk.CTkFrame):
 
         self.save_file = ctk.CTkButton(master=self.frame_options,
                                        text="Save File",
-                                       command=lambda: science.save_file)
+                                       command=lambda: science.save_file())
         self.save_file.grid(row=4, column=0, padx=5, pady=5)
 
         self.options_label = ctk.CTkLabel(master=self.frame_options,
@@ -1245,10 +1253,26 @@ class Science(ctk.CTkFrame):
                                             command=lambda S=self: science.new_science_display(S))
         self.display_button.grid(row=6, column=0, pady=5, padx=5)
 
+        # ============ frame_comms ============
+        self.frame_comms.rowconfigure(0, weight=1)
+        self.frame_comms.columnconfigure((0, 1), weight=1)
+
+        black_img = ImageTk.PhotoImage(Image.open("black_button.png").resize((60, 60)))
+
+        sci_CRC_image.append(ctk.CTkLabel(master=self.frame_comms, image=black_img))
+        sci_CRC_image[0].image = black_img
+        sci_CRC_image[0].grid(row=0, column=0, sticky="nsew")
+
+        sci_CRC_label.append(ctk.CTkLabel(master=self.frame_comms,
+                                          text="No Connection!",
+                                          text_font=("Kanit", -10, "bold"),
+                                          height=50))
+        sci_CRC_label[0].grid(row=0, column=1)
+
         # ============ frame_sci_plot ============
 
-        self.frame_sci_plot.rowconfigure((0, 1, 2), weight=1)
-        self.frame_sci_plot.columnconfigure(0, weight=1)
+        self.frame_sci_plot.rowconfigure((0, 1), weight=1)
+        self.frame_sci_plot.columnconfigure((0, 1), weight=1)
 
         self.figure_1 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_1 = self.figure_1.add_subplot(111)
@@ -1260,13 +1284,19 @@ class Science(ctk.CTkFrame):
         self.ax_2 = self.figure_2.add_subplot(111)
         self.canvas_2 = FigureCanvasTkAgg(self.figure_2, master=self.frame_sci_plot)
         self.canvas_2.draw()
-        self.canvas_2.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=15, pady=5)
+        self.canvas_2.get_tk_widget().grid(row=0, column=1, sticky="nsew", padx=15, pady=15)
 
         self.figure_3 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_3 = self.figure_3.add_subplot(111)
         self.canvas_3 = FigureCanvasTkAgg(self.figure_3, master=self.frame_sci_plot)
         self.canvas_3.draw()
-        self.canvas_3.get_tk_widget().grid(row=2, column=0, sticky="nsew", padx=15, pady=15)
+        self.canvas_3.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=15, pady=15)
+
+        self.figure_4 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
+        self.ax_4 = self.figure_4.add_subplot(111)
+        self.canvas_4 = FigureCanvasTkAgg(self.figure_4, master=self.frame_sci_plot)
+        self.canvas_4.draw()
+        self.canvas_4.get_tk_widget().grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
 
         # ============ frame_state_plot ============
 
@@ -1280,14 +1310,11 @@ class Science(ctk.CTkFrame):
                                               corner_radius=8)
         self.state_frame_label.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=5)
 
-        black_img = ImageTk.PhotoImage(Image.open("black_button.png").resize((100, 100)))
+        black_img = ImageTk.PhotoImage(Image.open("black_button.png").resize((80, 80)))
 
         led_image.append(ctk.CTkLabel(master=self.frame_state, image=black_img))
+        led_image[0].image = black_img
         led_image[0].grid(row=1, column=0, sticky="nsew")
-
-        self.state_led = ctk.CTkLabel(master=self.frame_state, image=black_img)
-        self.state_led.image = black_img
-        self.state_led.grid(row=1, column=0, sticky="nsew")
 
         state_label.append(ctk.CTkLabel(master=self.frame_state,
                                         text="OFF",
@@ -1309,33 +1336,33 @@ class Science(ctk.CTkFrame):
                                                 corner_radius=8)
         self.attitude_plot_label.grid(row=0, column=0, columnspan=4, sticky="ew", padx=20)
 
-        self.figure_4 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
-        self.ax_4 = self.figure_4.add_subplot(111)
-        self.ax_4_twin = self.ax_4.twinx()
-        self.canvas_4 = FigureCanvasTkAgg(self.figure_4, master=self.frame_quaternion_plots)
-        self.canvas_4.draw()
-        self.canvas_4.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=15, pady=15)
-
         self.figure_5 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_5 = self.figure_5.add_subplot(111)
         self.ax_5_twin = self.ax_5.twinx()
         self.canvas_5 = FigureCanvasTkAgg(self.figure_5, master=self.frame_quaternion_plots)
         self.canvas_5.draw()
-        self.canvas_5.get_tk_widget().grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
+        self.canvas_5.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=15, pady=15)
 
         self.figure_6 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_6 = self.figure_6.add_subplot(111)
         self.ax_6_twin = self.ax_6.twinx()
         self.canvas_6 = FigureCanvasTkAgg(self.figure_6, master=self.frame_quaternion_plots)
         self.canvas_6.draw()
-        self.canvas_6.get_tk_widget().grid(row=1, column=2, sticky="nsew", padx=15, pady=15)
+        self.canvas_6.get_tk_widget().grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
 
         self.figure_7 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
         self.ax_7 = self.figure_7.add_subplot(111)
         self.ax_7_twin = self.ax_7.twinx()
         self.canvas_7 = FigureCanvasTkAgg(self.figure_7, master=self.frame_quaternion_plots)
         self.canvas_7.draw()
-        self.canvas_7.get_tk_widget().grid(row=1, column=3, sticky="nsew", padx=15, pady=15)
+        self.canvas_7.get_tk_widget().grid(row=1, column=2, sticky="nsew", padx=15, pady=15)
+
+        self.figure_8 = Figure(figsize=(Housekeeping.FIG_WIDTH, Housekeeping.FIG_HEIGHT), dpi=50)
+        self.ax_8 = self.figure_8.add_subplot(111)
+        self.ax_8_twin = self.ax_8.twinx()
+        self.canvas_8 = FigureCanvasTkAgg(self.figure_8, master=self.frame_quaternion_plots)
+        self.canvas_8.draw()
+        self.canvas_8.get_tk_widget().grid(row=1, column=3, sticky="nsew", padx=15, pady=15)
 
         # ============ frame_attitude_quality ============
 
@@ -1417,12 +1444,12 @@ class Science(ctk.CTkFrame):
 
         # =========== Save all figures to be updated ===========
 
-        sci_fig.extend([self.figure_1, self.figure_2, self.figure_3])
-        sci_axes.extend([self.ax_1, self.ax_2, self.ax_3])
+        sci_fig.extend([self.figure_1, self.figure_2, self.figure_3, self.figure_4])
+        sci_axes.extend([self.ax_1, self.ax_2, self.ax_3, self.ax_4])
 
-        tracker_fig.extend([self.figure_4, self.figure_5, self.figure_6, self.figure_7])
-        tracker_axes.extend([self.ax_4, self.ax_5, self.ax_6, self.ax_7])
-        tracker_axes_twins.extend([self.ax_4_twin, self.ax_5_twin, self.ax_6_twin, self.ax_7_twin])
+        tracker_fig.extend([self.figure_5, self.figure_6, self.figure_7, self.figure_8])
+        tracker_axes.extend([self.ax_5, self.ax_6, self.ax_7, self.ax_8])
+        tracker_axes_twins.extend([self.ax_5_twin, self.ax_6_twin, self.ax_7_twin, self.ax_8_twin])
 
         for i in range(0, len(sci_axes)):
             sci_axes[i].patch.set_color("black")
@@ -1431,12 +1458,22 @@ class Science(ctk.CTkFrame):
             if i == 0:
                 sci_axes[i].set_xlabel("Time [s]")
                 sci_axes[i].set_ylabel("Magnitude of B-field [nT]")
+                sci_axes[i].set_xlim(mag_x_limits)
             if i == 1:
                 sci_axes[i].set_xlabel("Frequency [Hz]")
                 sci_axes[i].set_ylabel("Amplitude of Spectral Components")
+                sci_axes[i].set_xlim(fft_x_limits)
             if i == 2:
                 sci_axes[i].set_xlabel("Time [s]")
                 sci_axes[i].set_ylabel("Frequency [Hz]")
+            if i == 3:
+                sci_axes[i].set_xlabel("Packet #")
+                sci_axes[i].set_ylabel("")
+                sci_axes[i].set_ylim([0, 7])
+                sci_axes[i].set_yticks([0, 1, 2, 3, 4, 5, 6, 7])
+                sci_axes[i].set_yticklabels(["", "OFF", "Start Up", "Warm Up", "Laser Lock", "Magnetic Resonance",
+                                             "Magnetic Lock", ""])
+                sci_axes[i].set_xlim([0, len(Magnetometer_State)])
             sci_fig[i].tight_layout()
             sci_axes_background.append(sci_fig[i].canvas.copy_from_bbox(sci_axes[i].bbox))
 
@@ -1452,7 +1489,8 @@ class Science(ctk.CTkFrame):
             tracker_axes_twins_background.append(tracker_fig[i].canvas.copy_from_bbox(tracker_axes_twins[i].bbox))
 
         artist_3.extend([sci_axes[0].plot([], [], color='blue')[0],
-                         sci_axes[1].plot([], [], color='blue')[0]])
+                         sci_axes[1].plot([], [], color='blue')[0],
+                         sci_axes[3].plot([], [], color='white')[0]])
 
         artist_4.extend([tracker_axes[0].plot([], [], color='blue')[0],
                          tracker_axes[1].plot([], [], color='blue')[0],
