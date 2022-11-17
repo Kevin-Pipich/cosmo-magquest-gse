@@ -167,15 +167,15 @@ def request_science():
 
 """ enables/disables the ability to stream science data """
 def stream_science():
-    if serial_port[0] is None:
+    if serial_port[-1] is None:
         print("No Connection Established... Data Will Not Be Transmitted or Received!")
     else:
         match stream_science_checkbox[0].get():
             case 1:
-                SCIENCE_STREAM_CTRL(serial_port[0], ON)
+                SCIENCE_STREAM_CTRL(serial_port[-1], ON)
                 print("Science data now streaming")
             case 0:
-                SCIENCE_STREAM_CTRL(serial_port[0], OFF)
+                SCIENCE_STREAM_CTRL(serial_port[-1], OFF)
                 print("Science data no longer streaming")
 
 

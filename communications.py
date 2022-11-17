@@ -14,6 +14,8 @@ import commands
 # Time modules
 from datetime import datetime
 from time import time
+# Image modules
+from PIL import ImageTk, Image
 
 # -----------------------------------------SEND/RECEIVE FUNCTIONS----------------------------------------------------- #
 
@@ -121,6 +123,16 @@ def receive_data():
                         print("Request to activate scalar board no.1 has been received!")
                     elif result is False:
                         commands.change_led(result, 1)
+                        if stream_science_checkbox[0].get() == 1:
+                            SCIENCE_STREAM_CTRL(serial_port[-1], OFF)
+                            stream_science_checkbox[0].deselect()
+                            print("Science data no longer streaming")
+
+                            black_img = ImageTk.PhotoImage(Image.open("black_button.png").resize((80, 80)))
+                            led_image[0].configure(image=black_img)
+                            led_image[0].image = black_img
+
+                            state_label[0].configure(text="OFF")
                         print("Request to deactivate scalar board no.1 has been received!")
                     else:
                         print("Failure to read data!")
@@ -133,6 +145,16 @@ def receive_data():
                         print("Request to activate scalar board no.2 has been received!")
                     elif result is False:
                         commands.change_led(result, 2)
+                        if stream_science_checkbox[0].get() == 1:
+                            SCIENCE_STREAM_CTRL(serial_port[-1], OFF)
+                            stream_science_checkbox[0].deselect()
+                            print("Science data no longer streaming")
+
+                            black_img = ImageTk.PhotoImage(Image.open("black_button.png").resize((80, 80)))
+                            led_image[0].configure(image=black_img)
+                            led_image[0].image = black_img
+
+                            state_label[0].configure(text="OFF")
                         print("Request to deactivate scalar board no.2 has been received!")
                     else:
                         print("Failure to read data!")

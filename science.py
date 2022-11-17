@@ -15,7 +15,7 @@ import os
 import csv
 # Time modules
 from datetime import datetime
-from time import gmtime, strftime, time
+from time import gmtime, strftime, time, mktime
 # Data processing modules
 import numpy as np
 from scipy import signal
@@ -35,7 +35,7 @@ def update_science(science):
     d1 = datetime(1970, 1, 1, 0, 0, 0)
     d2 = datetime(1980, 1, 6, 0, 0, 0)
 
-    current_time = strftime("%A, %B %d, %Y %H:%M:%S", gmtime(time_since_1980 + (d2 - d1).total_seconds()))
+    current_time = mktime(gmtime(time_since_1980 + (d2 - d1).total_seconds()))
 
     # save time from GPS
     Science_Time.popleft()
@@ -375,7 +375,7 @@ def update_state():
             led_image[0].image = blue_img
             return
         case 6:
-            state_label[0].configure(text="Magnetic\nLock")
+            state_label[0].configure(text="Magnetic Lock")
 
             blue_img = ImageTk.PhotoImage(Image.open("blue_button.png").resize((80, 80)))
             led_image[0].configure(image=blue_img)
@@ -472,7 +472,7 @@ def save_to_file():
     num_saved[0].set(str(int(num_saved[0].get()) + 1))
 
     if num_saved[0].get() == "1":
-        header = ['Timestamp', 'Magnetometer Output', 'Magnetometer State', 'Beta0 (NST 1)', 'Beta1 (NST 1)',
+        header = ['Timestamp [s]', 'Magnetometer Output [nT]', 'Magnetometer State', 'Beta0 (NST 1)', 'Beta1 (NST 1)',
                   'Beta2 (NST 1)', 'Beta3 (NST 1)', 'omega1 (NST 1)', 'omega2 (NST 1)', 'omega3 (NST 1)',
                   'Tracker Right Ascension (NST 1)', 'Declination (NST 1)', 'Tracker Roll (NST 1)', 'COV1 (NST 1)',
                   'COV2 (NST 1)', 'COV3 (NST 1)', 'COV4 (NST 1)', 'COV5 (NST 1)', 'COV6 (NST 1)', 'Op Mode (NST 1)',

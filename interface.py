@@ -1248,10 +1248,10 @@ class Science(ctk.CTkFrame):
                                           corner_radius=8)
         self.options_label.grid(row=5, column=0, sticky="ew", pady=5, padx=20)
 
-        self.display_button = ctk.CTkButton(master=self.frame_options,
-                                            text="Display Science Data",
-                                            command=lambda S=self: science.new_science_display(S))
-        self.display_button.grid(row=6, column=0, pady=5, padx=5)
+        # self.display_button = ctk.CTkButton(master=self.frame_options,
+        #                                     text="Display Science Data",
+        #                                     command=lambda S=self: science.new_science_display(S))
+        # self.display_button.grid(row=6, column=0, pady=5, padx=5)
 
         # ============ frame_comms ============
         self.frame_comms.rowconfigure(0, weight=1)
@@ -1298,7 +1298,7 @@ class Science(ctk.CTkFrame):
         self.canvas_4.draw()
         self.canvas_4.get_tk_widget().grid(row=1, column=1, sticky="nsew", padx=15, pady=15)
 
-        # ============ frame_state_plot ============
+        # ============ frame_state ============
 
         self.frame_state.rowconfigure((0, 1), weight=1)
         self.frame_state.columnconfigure((0, 1), weight=1)
@@ -1319,7 +1319,7 @@ class Science(ctk.CTkFrame):
         state_label.append(ctk.CTkLabel(master=self.frame_state,
                                         text="OFF",
                                         text_font=("Kanit", -20, "bold"),
-                                        height=50))
+                                        height=90))
         state_label[0].grid(row=1, column=1)
 
         """ Star Tracker Frame of Tab Control """
