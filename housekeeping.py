@@ -399,8 +399,8 @@ def save_data():
         csvwriter.writerow(fields)
 
         # determine the length of the csv file
-        if HK_data_points[-1] > 100:
-            data_points = 100
+        if HK_data_points[-1] > deque_size:
+            data_points = deque_size
         else:
             data_points = HK_data_points[-1]
 
