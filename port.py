@@ -76,7 +76,7 @@ def Connect_to_Port():
 
     # If a port is found, create the serial port connection
     if connectPort != 'None':
-        ser = serial.Serial(connectPort, baudrate=115200, timeout=1)
+        ser = serial.Serial(connectPort, baudrate=115200, timeout=1, write_timeout=0)
         print('Connected to ' + connectPort)
         port_flag.clear()
         port_flag.append(True)

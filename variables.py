@@ -4,7 +4,7 @@ This module defines and preallocates memory to all variables that are used betwe
 # Organization modules
 from collections import deque
 from numpy import zeros
-from threading import Event
+from threading import Event, Lock
 
 # -----------------------------------------------DEFINE DEQUE SIZE-----------------------------------------------------#
 
@@ -17,6 +17,7 @@ serial_port = []  # store the serial port
 port_flag = [False]  # flag to request current configuration of board when connecting to new port
 
 exit_set = [Event()]
+lock = [Lock()]
 power = [True]
 
 # ----------------------------------------VOLTAGE AND CURRENT PREALLOCATION--------------------------------------------#
@@ -205,10 +206,6 @@ CRC_Flag = deque(zeros(100))  # CRC flag for scalar packets
 
 PSD = deque(zeros(sci_deque_size))  # Power spectral density of magnetometer data
 Freq = deque(zeros(sci_deque_size))  # Frequencies of magnetometer data
-
-Spec_f = deque(zeros(sci_deque_size))  # Spectrogram frequency
-Spec_t = deque(zeros(sci_deque_size))  # Spectrogram time
-Spec_Sxx = deque(zeros(sci_deque_size))  # Spectrogram
 
 # ---------------------------------------------DISPLAY WINDOWS & FRAMES------------------------------------------------#
 housekeeping_display = [False]  # flag to determine if the window is open

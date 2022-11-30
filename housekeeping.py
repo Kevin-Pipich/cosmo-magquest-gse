@@ -361,7 +361,7 @@ def update_housekeeping_display():
 """ saves the last n data points to a .csv file """
 def save_data():
     # create Fields
-    fields = ['Data Points', 'Current at +5V rail (for Analog Board)', 'Voltage at +5V rail (for Analog Board)',
+    fields = ['Timestamp', 'Current at +5V rail (for Analog Board)', 'Voltage at +5V rail (for Analog Board)',
               'Current at 12V rail (for Digital Board)', 'Voltage at 12V rail (for Digital Board)',
               'Current at 3V3 rail (for HK sensors)', 'Voltage at 3V3 rail (for HK sensors)',
               'Current at 5VST rail (for Star Trackers)', 'Voltage at 5VST rail (for Star Trackers)',
@@ -399,14 +399,19 @@ def save_data():
         csvwriter.writerow(fields)
 
         # determine the length of the csv file
-        if HK_data_points[-1] > 100:
-            data_points = 100
+        if HK_data_points[-1] > len(HK_data_points):
+            data_points = 24
         else:
             data_points = HK_data_points[-1]
 
+        timestamp = HK_data_points
+        if Science_Time[-1] is not None:
+            for i in range(0, data_points):
+                timestamp[i] = Science_Time[-1]
+
         # write each row for the length of each deque
         for i in range(0, data_points):
-            row = [HK_data_points[i], AB_current[i], AB_voltage[i], DB_current[i], DB_voltage[i],
+            row = [timestamp[i], AB_current[i], AB_voltage[i], DB_current[i], DB_voltage[i],
                    HK_current[i], HK_voltage[i], ST_current[i], ST_voltage[i], SB_current[i], SB_voltage[i],
                    SBN1C1_current[i], SBN1C1_voltage[i], SBN1C2_current[i], SBN1C2_voltage[i],
                    SBN1C3_current[i], SBN1C3_voltage[i], SBN2C1_current[i], SBN2C1_voltage[i],

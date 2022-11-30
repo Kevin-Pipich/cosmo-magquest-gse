@@ -36,7 +36,6 @@ def update_science(science):
     d2 = datetime(1980, 1, 6, 0, 0, 0)
 
     current_time = mktime(gmtime(time_since_1980 + (d2 - d1).total_seconds()))
-
     # save time from GPS
     Science_Time.popleft()
     Science_Time.append(current_time)
@@ -173,7 +172,7 @@ def update_science(science):
         Magnetometer_State.append(Magnetometer_Status[-1])
 
     mag_data = []
-    for i in range(1, 100):
+    for i in range(0, 100):
         mag_data.append(Raw_Scalar_Magnetometer_Data[-i] * 4e6/(pow(2, 32) - 1)/6.99583)
     Scalar_Magnetometer_Data.popleft()
     State_Change.popleft()
@@ -182,25 +181,22 @@ def update_science(science):
 
     # Frequency domain representation
     dt = int(current_scalar_sample_rate[0].text[:-3])  # sample rate
+    #
+    # n = len(mag_data)  # take a fft of the 100 data points given each second
+    # f_hat = np.fft.fft(mag_data, n)
+    # FFT_amp = f_hat * np.conj(f_hat) / n
+    # freq = (1 / (dt * n)) * np.arange(n)
+    # L = np.arange(1, np.floor(n / 2), dtype='int')
+    #
+    # PSD.append(FFT_amp[L].real)
+    # Freq.append(freq[L])
 
-    n = len(mag_data)  # take a fft of the 100 data points given each second
-    f_hat = np.fft.fft(mag_data, n)
-    FFT_amp = f_hat * np.conj(f_hat) / n
-    freq = (1 / (dt * n)) * np.arange(n)
-    L = np.arange(1, np.floor(n / 2), dtype='int')
+    fft = np.fft.fft(mag_data)
+    fft = fft[range(int(len(fft)/2))]
+    freq_fft = np.linspace(0, dt/2, len(fft))
 
-    PSD.append(FFT_amp[L].real)
-    Freq.append(freq[L])
-
-    Spec_data = np.ndarray((len(mag_data) - 1,), buffer=np.array(mag_data),
-                           offset=np.int_().itemsize,
-                           dtype=int)
-
-    f, t, Sxx = signal.spectrogram(Spec_data, dt)
-
-    Spec_f.append(f)
-    Spec_t.append(t)
-    Spec_Sxx.append(Sxx)
+    PSD.append(np.abs(fft)**2)
+    Freq.append(freq_fft)
 
     # Save data to csv file if checked
     if write_checkbox[0].get() == 1:
@@ -231,19 +227,12 @@ def update_science(science):
 """ updates science plots live, time domain and frequency domain """
 def plot_science():
     # Time domain plot
-    rescale_plots(Scalar_Magnetometer_Data, Science_x_values, mag_x_limits, magnetometer_limits, artist_3[0],
-                  sci_fig[0], sci_axes[0], sci_axes_background[0], 1.10, 0.90)
+    rescale_plots(Scalar_Magnetometer_Data, Science_x_values, artist_3[0], sci_fig[0], sci_axes[0],
+                  sci_axes_background[0], 1.02)
 
     # Frequency domain plot
-    rescale_plots(PSD[-1], Freq[-1], fft_x_limits, fft_limits, artist_3[1], sci_fig[1], sci_axes[1],
-                  sci_axes_background[1], 1.10, 0.90)
-
-    # Spectrogram
-    sci_axes[2].clear()
-    sci_axes[2].pcolormesh(Spec_t[-1], Spec_f[-1], Spec_Sxx[-1], shading='gouraud')
-    sci_axes[2].set_ylabel("Frequency [Hz]")
-    sci_axes[2].set_xlabel("Time [s]")
-    sci_axes[2].set_title("Magnetometer Spectrogram")
+    rescale_plots(PSD[-1][1:]/1e5, Freq[-1][1:], artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1],
+                  1.10)
 
     # State plot
     artist_3[2].set_xdata(np.linspace(1, 100, 100))
@@ -275,27 +264,34 @@ def plot_attitude():
 
 
 """ rescale the plots when max or min values extend beyond the limits """
-def rescale_plots(Y_List, X_List, x_limits, y_limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
+def rescale_plots(Y_List, X_List, artist, figure, axis, background, tolerance):
     try:
         # y Limits
-        if max(Y_List) > y_limits[1]:
-            max_limit = max(Y_List) * upper_tolerance
-            min_limit = y_limits[0]
-        elif min(Y_List) < y_limits[0]:
-            min_limit = min(Y_List) * lower_tolerance
-            max_limit = y_limits[1]
-        elif (max(Y_List) - min(Y_List) * 2) < (y_limits[1] - y_limits[0]) \
-                and (max(Y_List) != 0 or min(Y_List) != 0):
-            max_limit = max(Y_List) * upper_tolerance
-            min_limit = min(Y_List) * lower_tolerance
+        print("-----------")
+        print(axis.get_ylim())
+        if max(Y_List) > axis.get_ylim()[1]:
+            max_limit = max(Y_List) * tolerance
+            min_limit = min(Y_List) - (min(Y_List) * (1 - tolerance))
+            print(1)
+        elif min(Y_List) < axis.get_ylim()[0]:
+            min_limit = min(Y_List) - (min(Y_List) * (1 - tolerance))
+            max_limit = max(Y_List) * tolerance
+            print(2)
+        elif (max(Y_List) - min(Y_List)) < (axis.get_ylim()[1] - axis.get_ylim()[0]) \
+                and max(Y_List) != 0:
+            max_limit = max(Y_List) * tolerance
+            min_limit = max(Y_List) - (min(Y_List) * (1 - tolerance))
+            print(3)
         else:
-            min_limit = y_limits[0]
-            max_limit = y_limits[1]
+            min_limit = max(Y_List)
+            max_limit = min(Y_List)
+            print(4)
 
-        if min_limit != y_limits[0] or max_limit != y_limits[1]:
-            limits = [min_limit, max_limit]
-            axis.set_ylim(limits)
+        if min_limit != min(Y_List) or max_limit != max(Y_List):
+            y_limits = [min_limit, max_limit]
+            axis.set_ylim(y_limits)
             background = figure.canvas.copy_from_bbox(axis.bbox)
+            print(axis.get_ylim())
 
         # x limits
         if min(X_List) != 0 or max(X_List) != 0:
