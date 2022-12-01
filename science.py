@@ -227,11 +227,11 @@ def update_science(science):
 """ updates science plots live, time domain and frequency domain """
 def plot_science():
     # Time domain plot
-    rescale_plots(Scalar_Magnetometer_Data, Science_x_values, artist_3[0], sci_fig[0], sci_axes[0],
+    rescale_plots(Scalar_Magnetometer_Data, Science_x_values, magnetometer_limits, artist_3[0], sci_fig[0], sci_axes[0],
                   sci_axes_background[0], 1.02)
 
     # Frequency domain plot
-    rescale_plots(PSD[-1][1:]/1e5, Freq[-1][1:], artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1],
+    rescale_plots(PSD[-1][1:]/1e5, Freq[-1][1:], fft_limits, artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1],
                   1.10)
 
     # State plot
@@ -264,34 +264,27 @@ def plot_attitude():
 
 
 """ rescale the plots when max or min values extend beyond the limits """
-def rescale_plots(Y_List, X_List, artist, figure, axis, background, tolerance):
+def rescale_plots(Y_List, X_List, y_limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
     try:
         # y Limits
-        print("-----------")
-        print(axis.get_ylim())
-        if max(Y_List) > axis.get_ylim()[1]:
-            max_limit = max(Y_List) * tolerance
-            min_limit = min(Y_List) - (min(Y_List) * (1 - tolerance))
-            print(1)
-        elif min(Y_List) < axis.get_ylim()[0]:
-            min_limit = min(Y_List) - (min(Y_List) * (1 - tolerance))
-            max_limit = max(Y_List) * tolerance
-            print(2)
-        elif (max(Y_List) - min(Y_List)) < (axis.get_ylim()[1] - axis.get_ylim()[0]) \
-                and max(Y_List) != 0:
-            max_limit = max(Y_List) * tolerance
-            min_limit = max(Y_List) - (min(Y_List) * (1 - tolerance))
-            print(3)
+        if max(Y_List) > y_limits[1]:
+            max_limit = max(Y_List) * upper_tolerance
+            min_limit = y_limits[0]
+        elif min(Y_List) < y_limits[0]:
+            min_limit = min(Y_List) * lower_tolerance
+            max_limit = y_limits[1]
+        elif (max(Y_List) - min(Y_List) * 2) < (y_limits[1] - y_limits[0]) \
+                and (max(Y_List) != 0 or min(Y_List) != 0):
+            max_limit = max(Y_List) * upper_tolerance
+            min_limit = min(Y_List) * lower_tolerance
         else:
-            min_limit = max(Y_List)
-            max_limit = min(Y_List)
-            print(4)
+            min_limit = y_limits[0]
+            max_limit = y_limits[1]
 
-        if min_limit != min(Y_List) or max_limit != max(Y_List):
-            y_limits = [min_limit, max_limit]
-            axis.set_ylim(y_limits)
+        if min_limit != y_limits[0] or max_limit != y_limits[1]:
+            limits = [min_limit, max_limit]
+            axis.set_ylim(limits)
             background = figure.canvas.copy_from_bbox(axis.bbox)
-            print(axis.get_ylim())
 
         # x limits
         if min(X_List) != 0 or max(X_List) != 0:
