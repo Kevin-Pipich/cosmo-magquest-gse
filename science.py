@@ -228,11 +228,11 @@ def update_science(science):
 def plot_science():
     # Time domain plot
     rescale_plots(Scalar_Magnetometer_Data, Science_x_values, magnetometer_limits, artist_3[0], sci_fig[0], sci_axes[0],
-                  sci_axes_background[0], 1.02)
+                  sci_axes_background[0], 1.02, 0.98)
 
     # Frequency domain plot
     rescale_plots(PSD[-1][1:]/1e5, Freq[-1][1:], fft_limits, artist_3[1], sci_fig[1], sci_axes[1], sci_axes_background[1],
-                  1.10)
+                  1.10, 0.90)
 
     # State plot
     artist_3[2].set_xdata(np.linspace(1, 100, 100))
