@@ -237,6 +237,8 @@ stream_science_checkbox = []  # checkbox to indicate when to stream science data
 
 board_led = []  # all the board led indicators (5 leds)
 
+gain = []  # string variables that the user inputs for gain (1 string)
+
 """ Science Page """
 led_image = []  # magnetometer state light indicator (used in update_state() func)
 state_label = []  # magnetometer state label (used in update_state() func)

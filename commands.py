@@ -4,7 +4,7 @@ from the PIC and changing the LED lights on the analog board control frame.
 """
 # IMPORTED MODULES
 from variables import *
-from byte import CDH_CONFIG_OP, ON, OFF
+from byte import CDH_CONFIG_OP, CDH_MAG_GAIN_CONFIG, ON, OFF
 import communications
 from send import SCIENCE_STREAM_CTRL, SCI_REQ
 # GUI modules
@@ -85,17 +85,17 @@ def new_config():
 """ updates the current configuration box in the command GUI for the analog config """
 def update_config(config):
     current_frequencies[0].configure(text=str(round(int.from_bytes(config[0:2], "little") * (16E6 / 2 ** 28)))
-                                       + " Hz")
+                                          + " Hz")
 
     current_amplitudes[0].configure(text=str(int(int.from_bytes(config[6:7], "big") * 100 / 127)) + "%")
 
     current_frequencies[1].configure(text=str(round(int.from_bytes(config[2:4], "little") * (16E6 / 2 ** 28)))
-                                       + " Hz")
+                                          + " Hz")
 
     current_amplitudes[1].configure(text=str(int(int.from_bytes(config[7:8], "big") * 100 / 127)) + "%")
 
     current_frequencies[2].configure(text=str(round(int.from_bytes(config[4:6], "little") * (16E6 / 2 ** 28)))
-                                       + " Hz")
+                                          + " Hz")
 
     current_amplitudes[2].configure(text=str(int(int.from_bytes(config[8:9], "big") * 100 / 127)) + "%")
 
@@ -153,6 +153,37 @@ def change_amp_2(value):
 """ changes the label for amplitude of the specified coil """
 def change_amp_3(value):
     amplitude_labels[2].configure(text=str(int(value * 100 / 127)) + " %")
+
+
+""" takes in values from input boxes in the GUI and sends a new gain configuration to be sent to the magnetometer"""
+def new_gain():
+    try:
+        int(gain[0].get())
+        value = True
+    except ValueError:
+        value = False
+    if value:
+        if int(gain[0].get()) > 65535 or int(gain[0].get()) < 0:
+            window = ctk.CTkToplevel()
+            window.geometry("350x75")
+            window.title("WARNING!")
+            window.resizable(False, False)
+            # create warning label
+            label = ctk.CTkLabel(window, text="Gain value must be greater than 0 \n and less than 65535!"
+                                              "\nPlease enter accepted values")
+            label.pack(side="top", fill="both", expand=True)
+        else:
+            gain_bytes = int(round(float(gain[0].get()))).to_bytes(2, "little")
+            communications.send_data(CDH_MAG_GAIN_CONFIG, gain_bytes)
+    else:
+        window = ctk.CTkToplevel()
+        window.geometry("300x75")
+        window.title("WARNING!")
+        window.resizable(False, False)
+        # create warning label
+        label = ctk.CTkLabel(window, text="Entry must be an integer value!\n Please enter an integer value before "
+                                          "submitting")
+        label.pack(side="top", fill="both", expand=True)
 
 
 # ------------------------------------------------PACKET REQUESTS----------------------------------------------------- #

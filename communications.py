@@ -65,6 +65,10 @@ def send_data(opcode, data):
                 TIME_OF_TONE(serial_port[-1], data)
             case byte.CDH_SCIENCE_STREAM_CTRL:
                 SCIENCE_STREAM_CTRL(serial_port[-1], data)
+            case byte.CDH_MAG_GAIN_CTRL:
+                MAG_GAIN_CTRL(serial_port[-1], data)
+            case byte.CDH_MAG_GAIN_CONFIG:
+                MAG_GAIN_CONFIG(serial_port[-1], data)
             case _:
                 # should never enter default case
                 print("Something Went Horribly Wrong...")
@@ -198,6 +202,22 @@ def receive_data():
                         pass
                     else:
                         print("Failure to read data!")
+                    break
+                case byte.VRUM_MAG_GAIN_OP:
+                    result = MAG_GAIN_OP(serial_port[-1], opcode)
+                    if result is True:
+                        print("Magnetometer control loop gain has been activated!")
+                    elif result is False:
+                        print("Magnetometer control loop gain has been deactivated!")
+                    else:
+                        print("Failure to read data!")
+                    break
+                case byte.VRUM_MAG_GAIN_CONFIG:
+                    result = GAIN_CONFIG_ACK(serial_port[-1], opcode)
+                    if result is True:
+                        print("Gain Configuration Acknowledgement Received! Gain has been updated.")
+                    else:
+                        print("Packet Not Properly Received, Configuration Not Updated!")
                     break
                 case _:
                     print("No Corresponding Operational Code Found... Data Not Interpreted!")

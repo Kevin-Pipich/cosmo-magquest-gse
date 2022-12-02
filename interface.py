@@ -1241,7 +1241,7 @@ class Science(ctk.CTkFrame):
         self.save_file.grid(row=4, column=0, padx=5, pady=5)
 
         self.options_label = ctk.CTkLabel(master=self.frame_options,
-                                          text="Science Options",
+                                          text="Gain Options",
                                           height=50,
                                           fg_color=("white", "gray38"),
                                           justify=tkinter.LEFT,
@@ -1252,6 +1252,37 @@ class Science(ctk.CTkFrame):
         #                                     text="Display Science Data",
         #                                     command=lambda S=self: science.new_science_display(S))
         # self.display_button.grid(row=6, column=0, pady=5, padx=5)
+
+        self.gain_on_off = tkinter.IntVar(value=1)
+
+        self.gain_enable = ctk.CTkRadioButton(master=self.frame_options,
+                                              text="on",
+                                              variable=self.gain_on_off,
+                                              value=1,
+                                              command=lambda: communications.send_data(CDH_MAG_GAIN_CTRL, ON))
+        self.gain_enable.grid(row=6, column=0, sticky="nswe", padx=5, pady=5)
+
+        self.gain_disable = ctk.CTkRadioButton(master=self.frame_options,
+                                               text="off",
+                                               variable=self.gain_on_off,
+                                               value=0,
+                                               command=lambda: communications.send_data(CDH_MAG_GAIN_CTRL, OFF))
+        self.gain_disable.grid(row=7, column=0, sticky="nswe", padx=5, pady=5)
+
+        self.new_gain = tkinter.StringVar()
+        self.gain_adjust = ctk.CTkEntry(master=self.frame_options,
+                                        textvariable=self.new_gain,
+                                        placeholder_text="Enter New Gain...",
+                                        text_color="cornflowerblue")
+        self.gain_adjust.grid(row=8, column=0, sticky="ew", padx=5, pady=5)
+
+        gain.extend([self.new_gain])
+
+        # Submit Button
+        self.config_submit = ctk.CTkButton(master=self.frame_options,
+                                           text="Submit New Gain",
+                                           command=lambda: commands.new_gain())
+        self.config_submit.grid(row=10, column=0, sticky="ew", pady=5, padx=15)
 
         # ============ frame_comms ============
         self.frame_comms.rowconfigure(0, weight=1)

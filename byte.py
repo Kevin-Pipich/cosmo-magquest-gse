@@ -51,3 +51,11 @@ VRUM_TIME_ACK_OP = b'\xc6'
 # Science Stream
 CDH_SCIENCE_STREAM_CTRL = b'\xc7'
 VRUM_SCIENCE_STREAM_OP = b'\xc9'
+
+# Gain Enable/Disable
+CDH_MAG_GAIN_CTRL = b'\xf5'
+VRUM_MAG_GAIN_OP = b'\xf6'
+
+# Gain Configuration
+CDH_MAG_GAIN_CONFIG = b'\xf7'
+VRUM_MAG_GAIN_CONFIG = b'\xf9'

@@ -98,6 +98,17 @@ def SCIENCE_STREAM_CTRL(ser, data):
     ser.write(buildPacket(CDH_SCIENCE_STREAM_CTRL, data))
 
 
+""" Command the activation/deactivation of the Science Stream """
+def MAG_GAIN_CTRL(ser, data):
+    ser.write(buildPacket(CDH_MAG_GAIN_CTRL, data))
+
+
+""" Command the activation/deactivation of the Science Stream """
+
+def MAG_GAIN_CONFIG(ser, data):
+    ser.write(buildPacket(CDH_MAG_GAIN_CONFIG, data))
+
+
 # ---------------------------------------------------RECEIVE DATA----------------------------------------------------- #
 """ Response to the request for a housekeeping packet """
 def HK_OUT_OP(ser, opcode):
@@ -272,4 +283,35 @@ def SCIENCE_STREAM_OP(ser, opcode):
             print("Data Incorrect for Specified Operational Code!")
     else:
         print("Cyclic Redundancy Check Failed... Science Stream Operation Was Not Received Properly")
+        return None
+
+
+""" Acknowledge the reception of a new gain configuration packet to set the operational mode """
+def GAIN_CONFIG_ACK(ser, opcode):
+    data_length = ser.read(1)
+    data = ser.read(int.from_bytes(data_length, "big"))
+    CRC = ser.read(2)
+    packet = opcode + data_length + data
+    if CRC == getCRC(packet):
+        return True
+    else:
+        print("Cyclic Redundancy Check Failed... Gain Configuration Acknowledgement Was Not Received Properly")
+        return False
+
+
+""" Acknowledge the reception of the command requesting the activation/deactivation of the Gain function """
+def MAG_GAIN_OP(ser, opcode):
+    data_length = ser.read(1)
+    data = ser.read(int.from_bytes(data_length, "big"))
+    CRC = ser.read(2)
+    packet = opcode + data_length + data
+    if CRC == getCRC(packet):
+        if data == ON:
+            return True
+        elif data == OFF:
+            return False
+        else:
+            print("Data Incorrect for Specified Operational Code!")
+    else:
+        print("Cyclic Redundancy Check Failed... Gain Operation Was Not Received Properly")
         return None
