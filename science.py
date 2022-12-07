@@ -266,22 +266,19 @@ def plot_attitude():
 """ rescale the plots when max or min values extend beyond the limits """
 def rescale_plots(Y_List, X_List, y_limits, artist, figure, axis, background, upper_tolerance, lower_tolerance):
     try:
+        max_limit = None
+        min_limit = None
         # y Limits
-        if max(Y_List) > y_limits[1]:
+        if max(Y_List) > axis.get_ylim()[1] or (axis.get_ylim()[1] - max(Y_List)) >= (max(Y_List) * (1-upper_tolerance)):
             max_limit = max(Y_List) * upper_tolerance
-            min_limit = y_limits[0]
-        elif min(Y_List) < y_limits[0]:
+        if min(Y_List) < axis.get_ylim()[0] or (min(Y_List) - axis.get_ylim()[0]) > (min(Y_List) * (1-upper_tolerance)):
             min_limit = min(Y_List) * lower_tolerance
-            max_limit = y_limits[1]
-        elif (max(Y_List) - min(Y_List) * 2) < (y_limits[1] - y_limits[0]) \
-                and (max(Y_List) != 0 or min(Y_List) != 0):
-            max_limit = max(Y_List) * upper_tolerance
-            min_limit = min(Y_List) * lower_tolerance
-        else:
-            min_limit = y_limits[0]
-            max_limit = y_limits[1]
+        if max_limit is None:
+            max_limit = axis.get_ylim()[1]
+        if min_limit is None:
+            min_limit = axis.get_ylim()[0]
 
-        if min_limit != y_limits[0] or max_limit != y_limits[1]:
+        if min_limit != axis.get_ylim()[0] or max_limit != axis.get_ylim()[1]:
             limits = [min_limit, max_limit]
             axis.set_ylim(limits)
             background = figure.canvas.copy_from_bbox(axis.bbox)
