@@ -87,17 +87,20 @@ def update_config(config):
     current_frequencies[0].configure(text=str(round(int.from_bytes(config[0:2], "little") * (16E6 / 2 ** 28)))
                                           + " Hz")
 
-    current_amplitudes[0].configure(text=str(int(int.from_bytes(config[6:7], "big") * 100 / 127)) + "%")
+    current_amplitudes[0].configure(text=str(float("{:.3f}".format(int.from_bytes(config[6:7], "big") * 100 / 127)))
+                                         + "%")
 
     current_frequencies[1].configure(text=str(round(int.from_bytes(config[2:4], "little") * (16E6 / 2 ** 28)))
                                           + " Hz")
 
-    current_amplitudes[1].configure(text=str(int(int.from_bytes(config[7:8], "big") * 100 / 127)) + "%")
+    current_amplitudes[1].configure(text=str(float("{:.3f}".format(int.from_bytes(config[7:8], "big") * 100 / 127)))
+                                         + "%")
 
     current_frequencies[2].configure(text=str(round(int.from_bytes(config[4:6], "little") * (16E6 / 2 ** 28)))
                                           + " Hz")
 
-    current_amplitudes[2].configure(text=str(int(int.from_bytes(config[8:9], "big") * 100 / 127)) + "%")
+    current_amplitudes[2].configure(text=str(float("{:.3f}".format(int.from_bytes(config[8:9], "big") * 100 / 127)))
+                                         + "%")
 
     current_scalar_sample_rate[0].configure(text=str(config[10]) + " Hz")
 
@@ -130,9 +133,9 @@ def restore_default():
     amplitudes[1].set(112)
     amplitudes[2].set(114)
 
-    amplitude_labels[0].configure(text=str(int(127 * 100 / 127)) + " %")
-    amplitude_labels[1].configure(text=str(int(112 * 100 / 127)) + " %")
-    amplitude_labels[2].configure(text=str(int(114 * 100 / 127)) + " %")
+    amplitude_labels[0].configure(text=str(float("{:.3f}".format(127 * 100 / 127))) + " %")
+    amplitude_labels[1].configure(text=str(float("{:.3f}".format(112 * 100 / 127))) + " %")
+    amplitude_labels[2].configure(text=str(float("{:.3f}".format(114 * 100 / 127))) + " %")
 
     scalar_values[0].set("115200")
     scalar_values[1].set("100 Hz")
@@ -142,17 +145,17 @@ def restore_default():
 
 """ changes the label for amplitude of the specified coil """
 def change_amp_1(value):
-    amplitude_labels[0].configure(text=str(int(value * 100 / 127)) + " %")
+    amplitude_labels[0].configure(text=str(float("{:.3f}".format(value * 100 / 127))) + " %")
 
 
 """ changes the label for amplitude of the specified coil """
 def change_amp_2(value):
-    amplitude_labels[1].configure(text=str(int(value * 100 / 127)) + " %")
+    amplitude_labels[1].configure(text=str(float("{:.3f}".format(value * 100 / 127))) + " %")
 
 
 """ changes the label for amplitude of the specified coil """
 def change_amp_3(value):
-    amplitude_labels[2].configure(text=str(int(value * 100 / 127)) + " %")
+    amplitude_labels[2].configure(text=str(float("{:.3f}".format(value * 100 / 127))) + " %")
 
 
 """ takes in values from input boxes in the GUI and sends a new gain configuration to be sent to the magnetometer"""
@@ -184,6 +187,66 @@ def new_gain():
         label = ctk.CTkLabel(window, text="Entry must be an integer value!\n Please enter an integer value before "
                                           "submitting")
         label.pack(side="top", fill="both", expand=True)
+
+
+""" lowers amplitude of the specified coil by one step """
+def lower_amp_1():
+    new_value = (float(user_amplitudes[0].get()) - 1)
+    if new_value < 0:
+        new_value = 0
+
+    user_amplitudes[0].set(new_value)
+    amplitude_labels[0].configure(text=str(float("{:.3f}".format(100*new_value/user_amplitudes[0].to))) + " %")
+
+
+""" raises amplitude of the specified coil by one step """
+def raise_amp_1():
+    new_value = (float(user_amplitudes[0].get()) + 1)
+    if new_value > user_amplitudes[0].to:
+        new_value = user_amplitudes[0].to
+
+    user_amplitudes[0].set(new_value)
+    amplitude_labels[0].configure(text=str(float("{:.3f}".format(100 * new_value / user_amplitudes[0].to))) + " %")
+
+
+""" lowers amplitude of the specified coil by one step """
+def lower_amp_2():
+    new_value = (float(user_amplitudes[1].get()) - 1)
+    if new_value < 0:
+        new_value = 0
+
+    user_amplitudes[1].set(new_value)
+    amplitude_labels[1].configure(text=str(float("{:.3f}".format(100*new_value/user_amplitudes[1].to))) + " %")
+
+
+""" raises amplitude of the specified coil by one step """
+def raise_amp_2():
+    new_value = (float(user_amplitudes[1].get()) + 1)
+    if new_value > user_amplitudes[1].to:
+        new_value = user_amplitudes[1].to
+
+    user_amplitudes[1].set(new_value)
+    amplitude_labels[1].configure(text=str(float("{:.3f}".format(100 * new_value / user_amplitudes[1].to))) + " %")
+
+
+""" lowers amplitude of the specified coil by one step """
+def lower_amp_3():
+    new_value = (float(user_amplitudes[2].get()) - 1)
+    if new_value < 0:
+        new_value = 0
+
+    user_amplitudes[2].set(new_value)
+    amplitude_labels[2].configure(text=str(float("{:.3f}".format(100*new_value/user_amplitudes[2].to))) + " %")
+
+
+""" raises amplitude of the specified coil by one step """
+def raise_amp_3():
+    new_value = (float(user_amplitudes[2].get()) + 1)
+    if new_value > user_amplitudes[2].to:
+        new_value = user_amplitudes[2].to
+
+    user_amplitudes[2].set(new_value)
+    amplitude_labels[2].configure(text=str(float("{:.3f}".format(100 * new_value / user_amplitudes[2].to))) + " %")
 
 
 # ------------------------------------------------PACKET REQUESTS----------------------------------------------------- #

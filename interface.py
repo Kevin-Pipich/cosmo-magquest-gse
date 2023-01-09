@@ -726,21 +726,21 @@ class Commands(ctk.CTkFrame):
 
         # configure grid layout (2x2)
         self.Config_CTRL.rowconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), weight=1)
-        self.Config_CTRL.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+        self.Config_CTRL.columnconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
 
         self.config_ctrl_label = ctk.CTkLabel(master=self.Config_CTRL,
                                               text="Configuration Control",
                                               height=50,
                                               fg_color=("white", "gray38"),
                                               corner_radius=8)
-        self.config_ctrl_label.grid(row=0, column=0, columnspan=6, sticky="ew", padx=60, pady=5)
+        self.config_ctrl_label.grid(row=0, column=0, columnspan=8, sticky="ew", padx=60, pady=5)
 
         # Coil 1
         self.coil_1_label = ctk.CTkLabel(master=self.Config_CTRL,
                                          text="Coil 1",
                                          fg_color=("white", "#292929"),
                                          corner_radius=8)
-        self.coil_1_label.grid(row=1, column=0, columnspan=3, sticky="ew", padx=10)
+        self.coil_1_label.grid(row=1, column=0, columnspan=5, sticky="ew", padx=10)
 
         self.coil_1_frequency_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                    text="Frequency")
@@ -751,7 +751,7 @@ class Commands(ctk.CTkFrame):
                                              textvariable=self.freq_1,
                                              placeholder_text="Enter Coil 1 Frequency in Hz...",
                                              text_color="cornflowerblue")
-        self.coil_1_frequency.grid(row=2, column=1, columnspan=2, sticky="ew", padx=30, pady=5)
+        self.coil_1_frequency.grid(row=2, column=1, columnspan=4, sticky="ew", padx=30, pady=5)
 
         self.coil_1_amplitude_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                    text="Amplitude")
@@ -759,7 +759,17 @@ class Commands(ctk.CTkFrame):
 
         self.amp_1 = tkinter.IntVar()
         self.amp_1_label = ctk.CTkLabel(master=self.Config_CTRL, text="100%")
-        self.amp_1_label.grid(row=3, column=2)
+        self.amp_1_label.grid(row=3, column=4)
+
+        self.left_button_1 = ctk.CTkButton(master=self.Config_CTRL,
+                                           text="←",
+                                           command=commands.lower_amp_1)
+        self.left_button_1.grid(row=3, column=1, padx=25)
+
+        self.right_button_1 = ctk.CTkButton(master=self.Config_CTRL,
+                                            text="→",
+                                            command=commands.raise_amp_1)
+        self.right_button_1.grid(row=3, column=3, padx=25)
 
         self.coil_1_amplitude = ctk.CTkSlider(master=self.Config_CTRL,
                                               variable=self.amp_1,
@@ -767,14 +777,14 @@ class Commands(ctk.CTkFrame):
                                               to=127,
                                               number_of_steps=127,
                                               command=commands.change_amp_1)
-        self.coil_1_amplitude.grid(row=3, column=1, sticky="ew", padx=5, pady=5)
+        self.coil_1_amplitude.grid(row=3, column=2, sticky="ew", padx=5, pady=5)
 
         # Coil 2
         self.coil_2_label = ctk.CTkLabel(master=self.Config_CTRL,
                                          text="Coil 2",
                                          fg_color=("white", "#292929"),
                                          corner_radius=8)
-        self.coil_2_label.grid(row=4, column=0, columnspan=3, sticky="ew", padx=10)
+        self.coil_2_label.grid(row=4, column=0, columnspan=5, sticky="ew", padx=10)
 
         self.coil_2_frequency_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                    text="Frequency")
@@ -785,7 +795,7 @@ class Commands(ctk.CTkFrame):
                                              textvariable=self.freq_2,
                                              placeholder_text="Enter Coil 2 Frequency in Hz...",
                                              text_color="cornflowerblue")
-        self.coil_2_frequency.grid(row=5, column=1, columnspan=2, sticky="ew", padx=30, pady=5)
+        self.coil_2_frequency.grid(row=5, column=1, columnspan=4, sticky="ew", padx=30, pady=5)
 
         self.coil_2_amplitude_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                    text="Amplitude")
@@ -793,7 +803,17 @@ class Commands(ctk.CTkFrame):
 
         self.amp_2 = tkinter.IntVar()
         self.amp_2_label = ctk.CTkLabel(master=self.Config_CTRL, text="100%")
-        self.amp_2_label.grid(row=6, column=2)
+        self.amp_2_label.grid(row=6, column=4)
+
+        self.left_button_2 = ctk.CTkButton(master=self.Config_CTRL,
+                                           text="←",
+                                           command=commands.lower_amp_2)
+        self.left_button_2.grid(row=6, column=1, padx=25)
+
+        self.right_button_2 = ctk.CTkButton(master=self.Config_CTRL,
+                                            text="→",
+                                            command=commands.raise_amp_2)
+        self.right_button_2.grid(row=6, column=3, padx=25)
 
         self.coil_2_amplitude = ctk.CTkSlider(master=self.Config_CTRL,
                                               variable=self.amp_2,
@@ -801,14 +821,14 @@ class Commands(ctk.CTkFrame):
                                               to=127,
                                               number_of_steps=127,
                                               command=commands.change_amp_2)
-        self.coil_2_amplitude.grid(row=6, column=1, sticky="ew", padx=5, pady=5)
+        self.coil_2_amplitude.grid(row=6, column=2, sticky="ew", padx=5, pady=5)
 
         # Coil 3
         self.coil_3_label = ctk.CTkLabel(master=self.Config_CTRL,
                                          text="Coil 3",
                                          fg_color=("white", "#292929"),
                                          corner_radius=8)
-        self.coil_3_label.grid(row=7, column=0, columnspan=3, sticky="ew", padx=10)
+        self.coil_3_label.grid(row=7, column=0, columnspan=5, sticky="ew", padx=10)
 
         self.coil_3_frequency_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                    text="Frequency")
@@ -819,7 +839,7 @@ class Commands(ctk.CTkFrame):
                                              textvariable=self.freq_3,
                                              placeholder_text="Enter Coil 3 Frequency in Hz...",
                                              text_color="cornflowerblue")
-        self.coil_3_frequency.grid(row=8, column=1, columnspan=2, sticky="ew", padx=30, pady=5)
+        self.coil_3_frequency.grid(row=8, column=1, columnspan=4, sticky="ew", padx=30, pady=5)
 
         self.coil_3_amplitude_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                    text="Amplitude")
@@ -827,7 +847,17 @@ class Commands(ctk.CTkFrame):
 
         self.amp_3 = tkinter.IntVar()
         self.amp_3_label = ctk.CTkLabel(master=self.Config_CTRL, text="100%")
-        self.amp_3_label.grid(row=9, column=2)
+        self.amp_3_label.grid(row=9, column=4)
+
+        self.left_button_3 = ctk.CTkButton(master=self.Config_CTRL,
+                                           text="←",
+                                           command=commands.lower_amp_3)
+        self.left_button_3.grid(row=9, column=1, padx=25)
+
+        self.right_button_3 = ctk.CTkButton(master=self.Config_CTRL,
+                                            text="→",
+                                            command=commands.raise_amp_3)
+        self.right_button_3.grid(row=9, column=3, padx=25)
 
         self.coil_3_amplitude = ctk.CTkSlider(master=self.Config_CTRL,
                                               variable=self.amp_3,
@@ -835,35 +865,35 @@ class Commands(ctk.CTkFrame):
                                               to=127,
                                               number_of_steps=127,
                                               command=commands.change_amp_3)
-        self.coil_3_amplitude.grid(row=9, column=1, sticky="ew", padx=5, pady=5)
+        self.coil_3_amplitude.grid(row=9, column=2, sticky="ew", padx=5, pady=5)
 
         # Scalar Sample Rate
         self.scalar_sample_label = ctk.CTkLabel(master=self.Config_CTRL,
                                                 text="Scalar Sample Rate",
                                                 fg_color=("white", "#292929"),
                                                 corner_radius=8)
-        self.scalar_sample_label.grid(row=1, column=3, columnspan=3, sticky="ew", padx=20)
+        self.scalar_sample_label.grid(row=1, column=5, columnspan=3, sticky="ew", padx=20)
 
         self.scalar_sample = ctk.CTkOptionMenu(master=self.Config_CTRL,
                                                values=["100 Hz", "250 Hz"])
-        self.scalar_sample.grid(row=2, column=4, padx=5, pady=5)
+        self.scalar_sample.grid(row=2, column=6, padx=5, pady=5)
 
         # Scalar Baud Rate
         self.scalar_baud_label = ctk.CTkLabel(master=self.Config_CTRL,
                                               text="Scalar Baud Rate",
                                               fg_color=("white", "#292929"),
                                               corner_radius=8)
-        self.scalar_baud_label.grid(row=3, column=3, columnspan=3, sticky="ew", padx=20)
+        self.scalar_baud_label.grid(row=3, column=5, columnspan=3, sticky="ew", padx=20)
 
         self.scalar_baud = ctk.CTkOptionMenu(master=self.Config_CTRL,
                                              values=["115200", "230400", "460800", "921600"])
-        self.scalar_baud.grid(row=4, column=4, padx=5, pady=5)
+        self.scalar_baud.grid(row=4, column=6, padx=5, pady=5)
 
         # Submit Button
         self.config_submit = ctk.CTkButton(master=self.Config_CTRL,
                                            text="Submit Configuration",
                                            command=lambda: commands.new_config())
-        self.config_submit.grid(row=10, column=0, columnspan=6, sticky="ew", pady=10, padx=125)
+        self.config_submit.grid(row=10, column=0, columnspan=8, sticky="ew", pady=10, padx=125)
 
         # Default Settings
         self.coil_1_amplitude.set(127)
